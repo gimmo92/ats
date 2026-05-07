@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="it" data-bs-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TalentFlow ATS - Recruiting integrato con LinkedIn</title>
+  <meta name="description" content="ATS completo in Vue.js + Bootstrap con integrazione LinkedIn" />
+
+  <!-- Bootstrap 5 -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <!-- Bootstrap Icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+  />
+  <!-- Stili custom -->
+  <link rel="stylesheet" href="css/styles.css" />
+
+  <!-- Vue 3 + Vue Router come ESM via importmap -->
+  <script type="importmap">
+    {
+      "imports": {
+        "vue": "https://cdn.jsdelivr.net/npm/vue@3.4.38/dist/vue.esm-browser.prod.js",
+        "vue-router": "https://cdn.jsdelivr.net/npm/vue-router@4.4.3/dist/vue-router.esm-browser.js",
+        "@vue/devtools-api": "https://cdn.jsdelivr.net/npm/@vue/devtools-api@6.6.4/lib/esm/index.js"
+      }
+    }
+  </script>
+
+  <!-- Chart.js per i grafici -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <!-- Splash di caricamento mentre Vue monta -->
+    <div class="splash">
+      <div class="splash-inner">
+        <div class="spinner-border text-primary" role="status"></div>
+        <div class="mt-3 fw-semibold">Caricamento TalentFlow ATS...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS bundle (per dropdown, modal, offcanvas, toast) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- App entrypoint -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
