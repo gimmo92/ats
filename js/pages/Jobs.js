@@ -69,9 +69,14 @@ export default defineComponent({
         <h1 class="page-title">Posizioni aperte</h1>
         <p class="page-subtitle">{{ filtered.length }} posizioni</p>
       </div>
-      <router-link to="/jobs/new" class="btn btn-primary">
-        <i class="bi bi-plus-lg me-1"></i> Nuova posizione
-      </router-link>
+      <div class="d-flex gap-2 flex-wrap">
+        <router-link to="/jobs/new" class="btn btn-primary">
+          <i class="bi bi-plus-lg me-1"></i> Nuova posizione
+        </router-link>
+        <router-link to="/carriere" class="btn btn-light border">
+          <i class="bi bi-window-sidebar me-1"></i> Sito carriere
+        </router-link>
+      </div>
     </div>
 
     <div class="card mb-3">

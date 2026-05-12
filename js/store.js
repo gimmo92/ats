@@ -28,7 +28,28 @@ export const EMPLOYMENT_TYPES = [
 
 export const WORK_MODES = ["In sede", "Ibrido", "Remoto"];
 
+export const CAREERS_SOURCE = "Sito carriera";
+
 const STORAGE_KEY = "talentflow-ats-v1";
+
+export function defaultCareersPageSettings() {
+  return {
+    enabled: true,
+    headline: "Unisciti al nostro team",
+    subheadline:
+      "Scopri le opportunità aperte e candidati in pochi minuti. Valorizziamo talento, crescita e impatto reale.",
+    showSalary: true,
+    cultureTitle: "Perché lavorare con noi",
+    cultureText:
+      "Team multidisciplinare, cultura data-driven e spazio per sperimentare. Offriamo flessibilità, formazione continua e un ambiente inclusivo.",
+    perks: [
+      "Smart working e flessibilità",
+      "Budget formazione annuale",
+      "Welfare aziendale",
+      "Team internazionale",
+    ],
+  };
+}
 
 /* ============================================================
    Util
@@ -141,6 +162,7 @@ function seed() {
       createdAt: daysAgo(18),
       linkedinPosted: true,
       linkedinPostId: "li_post_demo_1",
+      careersPublished: true,
       hiringManager: "Laura Bianchi",
     },
     {
@@ -167,6 +189,7 @@ function seed() {
       skills: ["Node.js", "GraphQL", "PostgreSQL", "AWS", "Docker"],
       createdAt: daysAgo(12),
       linkedinPosted: true,
+      careersPublished: true,
       hiringManager: "Marco Rossi",
     },
     {
@@ -192,6 +215,7 @@ function seed() {
       skills: ["Product Management", "B2B SaaS", "Roadmap", "SQL"],
       createdAt: daysAgo(7),
       linkedinPosted: false,
+      careersPublished: true,
       hiringManager: "Chiara Verdi",
     },
     {
@@ -211,6 +235,7 @@ function seed() {
       skills: ["Figma", "Design Systems", "User Research"],
       createdAt: daysAgo(25),
       linkedinPosted: true,
+      careersPublished: false,
       hiringManager: "Laura Bianchi",
     },
     {
@@ -230,6 +255,7 @@ function seed() {
       skills: ["Kubernetes", "Terraform", "AWS", "CI/CD", "Linux"],
       createdAt: daysAgo(4),
       linkedinPosted: false,
+      careersPublished: true,
       hiringManager: "Marco Rossi",
     },
   ];
@@ -614,6 +640,7 @@ function seed() {
       autoSync: true,
     },
     theme: "light",
+    careersPage: defaultCareersPageSettings(),
   };
 
   return { jobs, candidates, interviews, activity, settings };
@@ -661,12 +688,32 @@ function candidate(partial) {
 /* ============================================================
    State globale
    ============================================================ */
+function normalizeState(parsed) {
+  if (!parsed.settings) parsed.settings = {};
+  if (!parsed.settings.careersPage) {
+    parsed.settings.careersPage = defaultCareersPageSettings();
+  } else {
+    parsed.settings.careersPage = {
+      ...defaultCareersPageSettings(),
+      ...parsed.settings.careersPage,
+    };
+  }
+  parsed.jobs.forEach((job) => {
+    if (job.careersPublished === undefined) {
+      job.careersPublished = job.status === "open";
+    }
+  });
+  return parsed;
+}
+
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (parsed && parsed.candidates && parsed.jobs) return parsed;
+      if (parsed && parsed.candidates && parsed.jobs) {
+        return normalizeState(parsed);
+      }
     }
   } catch (e) {
     console.warn("Errore caricamento stato, uso seed:", e);
@@ -729,6 +776,31 @@ export const stats = computed(() => {
 export function jobById(id) {
   return state.jobs.find((j) => j.id === id) || null;
 }
+
+export function careersPageSettings() {
+  return state.settings.careersPage || defaultCareersPageSettings();
+}
+
+export function isCareersPageEnabled() {
+  return careersPageSettings().enabled !== false;
+}
+
+export function isJobPublishedOnCareers(job) {
+  if (!job) return false;
+  return job.status === "open" && job.careersPublished !== false;
+}
+
+export function careersJobs() {
+  if (!isCareersPageEnabled()) return [];
+  return state.jobs
+    .filter((job) => isJobPublishedOnCareers(job))
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+}
+
+export function careerJobById(id) {
+  const job = jobById(id);
+  return isJobPublishedOnCareers(job) ? job : null;
+}
 export function candidateById(id) {
   return state.candidates.find((c) => c.id === id) || null;
 }
@@ -748,6 +820,43 @@ export function addCandidate(payload) {
     message: `Candidato ${c.name} aggiunto`,
   });
   return c;
+}
+
+export function applyFromCareersPage(payload) {
+  const job = careerJobById(payload.jobId);
+  if (!job) throw new Error("Posizione non disponibile per candidature");
+
+  const skills = (payload.skills || [])
+    .map((skill) => skill.trim())
+    .filter(Boolean);
+  const notes = [payload.coverLetter, payload.notes]
+    .map((part) => (part || "").trim())
+    .filter(Boolean)
+    .join("\n\n");
+
+  const candidate = addCandidate({
+    name: payload.name,
+    email: payload.email,
+    phone: payload.phone || "",
+    role: job.title,
+    location: payload.location || job.location || "",
+    headline: payload.headline || "",
+    linkedinUrl: payload.linkedinUrl || "",
+    jobId: job.id,
+    source: CAREERS_SOURCE,
+    stage: "applied",
+    skills,
+    notes,
+  });
+
+  logActivity({
+    type: "careers_application",
+    candidateId: candidate.id,
+    jobId: job.id,
+    message: `${candidate.name} si è candidato/a a '${job.title}' dal sito carriere`,
+  });
+
+  return candidate;
 }
 
 export function updateCandidate(id, patch) {
@@ -809,6 +918,7 @@ export function addJob(payload) {
     skills: [],
     createdAt: nowIso(),
     linkedinPosted: false,
+    careersPublished: true,
     hiringManager: "",
     ...payload,
   };
@@ -906,5 +1016,5 @@ export function importData(json) {
   if (!parsed.candidates || !parsed.jobs)
     throw new Error("Formato non valido");
   Object.keys(state).forEach((k) => delete state[k]);
-  Object.assign(state, parsed);
+  Object.assign(state, normalizeState(parsed));
 }

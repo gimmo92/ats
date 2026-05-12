@@ -97,6 +97,18 @@ export default defineComponent({
       updateJob(job.value.id, { status: s });
     }
 
+    function toggleCareersPublished() {
+      updateJob(job.value.id, {
+        careersPublished: !job.value.careersPublished,
+      });
+    }
+
+    const careersPreviewLink = computed(() =>
+      job.value
+        ? { name: "career-job-detail", params: { id: job.value.id } }
+        : null
+    );
+
     return {
       job,
       editing,
@@ -120,6 +132,8 @@ export default defineComponent({
       statusLabel,
       statusVariant,
       setStatus,
+      toggleCareersPublished,
+      careersPreviewLink,
       state,
     };
   },
@@ -364,6 +378,42 @@ export default defineComponent({
                 <span class="badge text-bg-light border">{{ s.count }}</span>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-body">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <i class="bi bi-window-sidebar fs-5 text-primary"></i>
+              <span class="fw-semibold">Sito carriere</span>
+            </div>
+            <div v-if="job.status !== 'open'" class="small text-secondary mb-3">
+              Solo le posizioni aperte possono essere pubblicate sul sito carriere.
+            </div>
+            <div v-else class="small mb-3">
+              <span v-if="job.careersPublished !== false" class="text-success">
+                <i class="bi bi-check-circle-fill me-1"></i>
+                Visibile sul sito carriere
+              </span>
+              <span v-else class="text-secondary">
+                Non pubblicata sul sito carriere
+              </span>
+            </div>
+            <button
+              class="btn w-100 mb-2"
+              :class="job.careersPublished !== false ? 'btn-outline-secondary' : 'btn-primary'"
+              :disabled="job.status !== 'open'"
+              @click="toggleCareersPublished"
+            >
+              {{ job.careersPublished !== false ? 'Rimuovi dal sito carriere' : 'Pubblica sul sito carriere' }}
+            </button>
+            <router-link
+              v-if="job.careersPublished !== false && job.status === 'open'"
+              :to="careersPreviewLink"
+              class="btn btn-outline-primary w-100"
+            >
+              <i class="bi bi-box-arrow-up-right me-1"></i> Anteprima pagina pubblica
+            </router-link>
           </div>
         </div>
 

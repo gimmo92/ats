@@ -1,4 +1,4 @@
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, computed } from "vue";
 import { state, resetData, exportData, importData } from "../store.js";
 
 export default defineComponent({
@@ -8,6 +8,18 @@ export default defineComponent({
     const exportText = ref("");
     const importError = ref("");
     const importSuccess = ref(false);
+
+    const careersPerksText = computed({
+      get() {
+        return (state.settings.careersPage?.perks || []).join("\n");
+      },
+      set(value) {
+        state.settings.careersPage.perks = (value || "")
+          .split("\n")
+          .map((line) => line.trim())
+          .filter(Boolean);
+      },
+    });
 
     function doExport() {
       exportText.value = exportData();
@@ -45,6 +57,7 @@ export default defineComponent({
     }
 
     return {
+      careersPerksText,
       state,
       importText,
       exportText,
@@ -84,6 +97,76 @@ export default defineComponent({
                 <input v-model="state.settings.company.industry" class="form-control" />
               </div>
             </div>
+          </div>
+        </div>
+
+        <div class="card mb-3">
+          <div class="card-body">
+            <h5 class="card-title">Sito carriere</h5>
+            <p class="small text-secondary">
+              Configura la pagina pubblica dove i candidati consultano le posizioni aperte e inviano candidature.
+            </p>
+            <div class="form-check form-switch mb-3">
+              <input
+                v-model="state.settings.careersPage.enabled"
+                class="form-check-input"
+                type="checkbox"
+                id="careersEnabled"
+              />
+              <label class="form-check-label" for="careersEnabled">
+                Pagina carriere attiva
+              </label>
+            </div>
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label">Titolo hero</label>
+                <input v-model="state.settings.careersPage.headline" class="form-control" />
+              </div>
+              <div class="col-12">
+                <label class="form-label">Sottotitolo</label>
+                <textarea
+                  v-model="state.settings.careersPage.subheadline"
+                  rows="3"
+                  class="form-control"
+                ></textarea>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Titolo cultura</label>
+                <input v-model="state.settings.careersPage.cultureTitle" class="form-control" />
+              </div>
+              <div class="col-12">
+                <label class="form-label">Testo cultura</label>
+                <textarea
+                  v-model="state.settings.careersPage.cultureText"
+                  rows="4"
+                  class="form-control"
+                ></textarea>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Benefit in evidenza (uno per riga)</label>
+                <textarea
+                  v-model="careersPerksText"
+                  rows="4"
+                  class="form-control"
+                ></textarea>
+              </div>
+              <div class="col-12">
+                <div class="form-check form-switch">
+                  <input
+                    v-model="state.settings.careersPage.showSalary"
+                    class="form-check-input"
+                    type="checkbox"
+                    id="careersShowSalary"
+                  />
+                  <label class="form-check-label" for="careersShowSalary">
+                    Mostra range salariale sul sito carriere
+                  </label>
+                </div>
+              </div>
+            </div>
+            <router-link to="/carriere" class="btn btn-outline-primary mt-3">
+              <i class="bi bi-box-arrow-up-right me-1"></i> Anteprima sito carriere
+            </router-link>
           </div>
         </div>
 
