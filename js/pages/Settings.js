@@ -123,7 +123,8 @@ export default defineComponent({
       removeLogo,
       triggerBannerUpload,
       triggerLogoUpload,
-      state,      importText,
+      state,
+      importText,
       exportText,
       importError,
       importSuccess,
@@ -150,11 +151,19 @@ export default defineComponent({
             <div class="row g-3">
               <div class="col-12">
                 <label class="form-label">Nome</label>
-                <input v-model="state.settings.company.name" class="form-control" />
+                <input
+                  v-model="state.settings.company.name"
+                  class="form-control"
+                  placeholder="Spark"
+                />
               </div>
               <div class="col-md-6">
                 <label class="form-label">Sito web</label>
-                <input v-model="state.settings.company.website" class="form-control" />
+                <input
+                  v-model="state.settings.company.website"
+                  class="form-control"
+                  placeholder="https://tryspark.co"
+                />
               </div>
               <div class="col-md-6">
                 <label class="form-label">Settore</label>
@@ -260,6 +269,18 @@ export default defineComponent({
               <label class="form-check-label" for="careersEnabled">
                 Pagina carriere attiva
               </label>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Redirect sito carriere</label>
+              <input
+                v-model="state.settings.careersPage.redirectUrl"
+                class="form-control"
+                type="url"
+                placeholder="https://tryspark.co/careers"
+              />
+              <div class="form-text">
+                Se compilato, l'apertura della career page reindirizza a questo URL.
+              </div>
             </div>
             <div class="row g-3">
               <div class="col-12">

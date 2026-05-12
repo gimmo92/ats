@@ -1,5 +1,5 @@
 import { defineComponent, ref, computed, watch, onMounted, onBeforeUnmount } from "vue";
-import { state, stats } from "../store.js";
+import { state } from "../store.js";
 
 export const AppShell = defineComponent({
   name: "AppShell",
@@ -26,13 +26,6 @@ export const AppShell = defineComponent({
       () => state.settings.theme,
       (v) => document.documentElement.setAttribute("data-bs-theme", v)
     );
-
-    const counts = computed(() => ({
-      candidates: state.candidates.length,
-      jobs: state.jobs.filter((j) => j.status === "open").length,
-      interviews: stats.value.interviewsThisWeek,
-      pipeline: stats.value.inPipeline,
-    }));
 
     const searchResults = computed(() => {
       const q = search.value.trim().toLowerCase();
@@ -79,7 +72,6 @@ export const AppShell = defineComponent({
     return {
       search,
       showResults,
-      counts,
       searchResults,
       onResultClick,
       state,
@@ -96,22 +88,18 @@ export const AppShell = defineComponent({
         <router-link to="/pipeline" class="nav-tab">
           <i class="bi bi-kanban"></i>
           <span>Pipeline</span>
-          <span class="badge text-bg-secondary">{{ counts.pipeline }}</span>
         </router-link>
         <router-link to="/candidates" class="nav-tab">
           <i class="bi bi-people"></i>
           <span>Candidati</span>
-          <span class="badge text-bg-secondary">{{ counts.candidates }}</span>
         </router-link>
         <router-link to="/jobs" class="nav-tab">
           <i class="bi bi-briefcase"></i>
           <span>Posizioni</span>
-          <span class="badge text-bg-success">{{ counts.jobs }}</span>
         </router-link>
         <router-link to="/interviews" class="nav-tab">
           <i class="bi bi-calendar-event"></i>
           <span>Colloqui</span>
-          <span class="badge text-bg-info">{{ counts.interviews }}</span>
         </router-link>
         <router-link to="/reports" class="nav-tab">
           <i class="bi bi-graph-up"></i>

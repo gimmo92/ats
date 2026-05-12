@@ -35,6 +35,7 @@ const STORAGE_KEY = "talentflow-ats-v1";
 export function defaultCareersPageSettings() {
   return {
     enabled: true,
+    redirectUrl: "",
     headline: "Unisciti al nostro team",
     subheadline:
       "Scopri le opportunità aperte e candidati in pochi minuti. Valorizziamo talento, crescita e impatto reale.",
@@ -88,7 +89,15 @@ export function formatDateTime(iso) {
   });
 }
 
+export function careersRedirectUrl() {
+  const raw = (careersPageSettings().redirectUrl || "").trim();
+  return raw || null;
+}
+
 export function careerPageUrl(jobId = "") {
+  const redirectUrl = careersRedirectUrl();
+  if (redirectUrl) return redirectUrl;
+
   const base = `${window.location.origin}${window.location.pathname}`;
   return jobId
     ? `${base}#/carriere/${encodeURIComponent(jobId)}`

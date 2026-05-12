@@ -1,11 +1,18 @@
-import { defineComponent, computed } from "vue";
-import { state, careersPageSettings } from "../store.js";
+import { defineComponent, computed, onMounted } from "vue";
+import { careersRedirectUrl, careersPageSettings, state } from "../store.js";
 
 export const CareerShell = defineComponent({
   name: "CareerShell",
   setup() {
     const company = computed(() => state.settings.company || {});
     const careers = computed(() => careersPageSettings());
+
+    onMounted(() => {
+      const redirectUrl = careersRedirectUrl();
+      if (redirectUrl) {
+        window.location.replace(redirectUrl);
+      }
+    });
 
     return {
       company,
@@ -37,9 +44,6 @@ export const CareerShell = defineComponent({
           >
             Sito aziendale
           </a>
-          <router-link to="/" class="btn btn-sm btn-light border">
-            Area recruiter
-          </router-link>
         </nav>
       </div>
     </header>
@@ -62,7 +66,6 @@ export const CareerShell = defineComponent({
         </div>
         <div class="career-footer-links">
           <router-link to="/carriere">Posizioni aperte</router-link>
-          <router-link to="/">Area recruiter</router-link>
         </div>
       </div>
     </footer>

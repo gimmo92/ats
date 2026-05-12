@@ -6,6 +6,7 @@ import {
   careersPageSettings,
   formatDate,
   isCareersPageEnabled,
+  state,
 } from "../store.js";
 
 export default defineComponent({
@@ -13,7 +14,16 @@ export default defineComponent({
   setup() {
     const route = useRoute();
     const careers = computed(() => careersPageSettings());
+    const company = computed(() => state.settings.company || {});
     const job = computed(() => careerJobById(route.params.id));
+    const heroStyle = computed(() => {
+      if (!company.value.bannerUrl) return null;
+      return {
+        backgroundImage: `linear-gradient(135deg, rgba(6, 61, 120, 0.9) 0%, rgba(8, 79, 156, 0.82) 100%), url("${company.value.bannerUrl}")`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      };
+    });
     const submitted = ref(false);
     const submitError = ref("");
     const submitting = ref(false);
@@ -74,8 +84,10 @@ export default defineComponent({
 
     return {
       careers,
+      company,
       formatDate,
       formatSalary,
+      heroStyle,
       isCareersPageEnabled,
       job,
       model,
@@ -110,7 +122,11 @@ export default defineComponent({
     </div>
 
     <div v-else>
-      <section class="career-detail-hero">
+      <section
+        class="career-detail-hero"
+        :class="{ 'career-detail-hero--branded': company.bannerUrl }"
+        :style="heroStyle"
+      >
         <div class="career-detail-hero-inner">
           <router-link to="/carriere" class="career-back-link">
             <i class="bi bi-arrow-left"></i> Tutte le posizioni

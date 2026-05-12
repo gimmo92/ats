@@ -19,7 +19,7 @@ export default defineComponent({
     const heroStyle = computed(() => {
       if (!company.value.bannerUrl) return null;
       return {
-        backgroundImage: `linear-gradient(135deg, rgba(30, 27, 75, 0.88) 0%, rgba(49, 46, 129, 0.78) 48%, rgba(79, 70, 229, 0.72) 100%), url("${company.value.bannerUrl}")`,
+        backgroundImage: `linear-gradient(135deg, rgba(6, 61, 120, 0.88) 0%, rgba(8, 79, 156, 0.78) 48%, rgba(10, 108, 210, 0.72) 100%), url("${company.value.bannerUrl}")`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       };
@@ -78,7 +78,11 @@ export default defineComponent({
   },
   template: `
   <div>
-    <section class="career-hero">
+    <section
+      class="career-hero"
+      :class="{ 'career-hero--branded': company.bannerUrl }"
+      :style="heroStyle"
+    >
       <div class="career-hero-inner">
         <div class="career-hero-copy">
           <span class="career-eyebrow">{{ company.industry || 'Opportunità di lavoro' }}</span>
@@ -88,9 +92,6 @@ export default defineComponent({
             <a href="#posizioni-aperte" class="btn btn-light btn-lg">
               Vedi le posizioni aperte
             </a>
-            <router-link to="/" class="btn btn-outline-light btn-lg">
-              Area recruiter
-            </router-link>
           </div>
         </div>
         <div class="career-hero-panel">
