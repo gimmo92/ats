@@ -299,19 +299,6 @@ export default defineComponent({
       </div>
     </div>
 
-    <!-- LinkedIn banner -->
-    <div v-if="!state.settings.linkedin.connected" class="linkedin-banner mb-4">
-      <div class="d-flex align-items-center gap-3">
-        <i class="bi bi-linkedin" style="font-size:2rem"></i>
-        <div>
-          <div class="fw-bold fs-5">Collega LinkedIn al tuo ATS</div>
-          <div class="opacity-75 small">Importa candidati, pubblica job e sincronizza i profili.</div>
-        </div>
-      </div>
-      <router-link to="/linkedin" class="btn btn-light fw-semibold">
-        Connetti ora <i class="bi bi-arrow-right ms-1"></i>
-      </router-link>
-    </div>
 
     <!-- Grafici -->
     <div class="row g-3 mb-4">
