@@ -13,8 +13,17 @@ export default defineComponent({
     const search = ref("");
     const departmentFilter = ref("");
     const workModeFilter = ref("");
+    const company = computed(() => state.settings.company || {});
     const careers = computed(() => careersPageSettings());
     const jobs = computed(() => careersJobs());
+    const heroStyle = computed(() => {
+      if (!company.value.bannerUrl) return null;
+      return {
+        backgroundImage: `linear-gradient(135deg, rgba(30, 27, 75, 0.88) 0%, rgba(49, 46, 129, 0.78) 48%, rgba(79, 70, 229, 0.72) 100%), url("${company.value.bannerUrl}")`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      };
+    });
 
     const departments = computed(() => {
       const set = new Set();
@@ -55,11 +64,12 @@ export default defineComponent({
 
     return {
       careers,
-      company: state.settings.company,
+      company,
       departments,
       filtered,
       formatDate,
       formatSalary,
+      heroStyle,
       isCareersPageEnabled,
       search,
       departmentFilter,

@@ -17,7 +17,10 @@ export const CareerShell = defineComponent({
     <header class="career-header">
       <div class="career-header-inner">
         <router-link to="/carriere" class="career-brand">
-          <span class="career-brand-mark">{{ (company.name || 'TalentFlow').slice(0, 1) }}</span>
+          <span v-if="company.logoUrl" class="career-brand-logo">
+            <img :src="company.logoUrl" :alt="company.name || 'Logo aziendale'" />
+          </span>
+          <span v-else class="career-brand-mark">{{ (company.name || 'TalentFlow').slice(0, 1) }}</span>
           <span>
             <span class="career-brand-name">{{ company.name || 'TalentFlow' }}</span>
             <span class="career-brand-tag">Carriere</span>

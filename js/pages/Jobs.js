@@ -3,6 +3,7 @@ import {
   state,
   JOB_STATUSES,
   candidatesByJob,
+  careerPageUrl,
   formatDate,
 } from "../store.js";
 
@@ -59,6 +60,7 @@ export default defineComponent({
       statusVariant,
       statusLabel,
       formatDate,
+      careerPageUrl,
       state,
     };
   },
@@ -73,9 +75,14 @@ export default defineComponent({
         <router-link to="/jobs/new" class="btn btn-primary">
           <i class="bi bi-plus-lg me-1"></i> Nuova posizione
         </router-link>
-        <router-link to="/carriere" class="btn btn-light border">
+        <a
+          :href="careerPageUrl()"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn btn-light border"
+        >
           <i class="bi bi-window-sidebar me-1"></i> Sito carriere
-        </router-link>
+        </a>
       </div>
     </div>
 

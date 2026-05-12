@@ -1,5 +1,12 @@
 import { defineComponent, ref, computed } from "vue";
-import { state, resetData, exportData, importData } from "../store.js";
+import {
+  state,
+  resetData,
+  exportData,
+  importData,
+  careerPageUrl,
+  readCompanyImage,
+} from "../store.js";
 
 export default defineComponent({
   name: "SettingsPage",
@@ -8,7 +15,10 @@ export default defineComponent({
     const exportText = ref("");
     const importError = ref("");
     const importSuccess = ref(false);
-
+    const logoError = ref("");
+    const bannerError = ref("");
+    const logoInput = ref(null);
+    const bannerInput = ref(null);
     const careersPerksText = computed({
       get() {
         return (state.settings.careersPage?.perks || []).join("\n");
@@ -56,10 +66,64 @@ export default defineComponent({
       }
     }
 
+    function triggerLogoUpload() {
+      logoInput.value?.click();
+    }
+
+    function triggerBannerUpload() {
+      bannerInput.value?.click();
+    }
+
+    async function onLogoSelected(event) {
+      const file = event.target.files?.[0];
+      event.target.value = "";
+      if (!file) return;
+
+      logoError.value = "";
+      try {
+        state.settings.company.logoUrl = await readCompanyImage(file, "logo");
+      } catch (error) {
+        logoError.value = error.message;
+      }
+    }
+
+    async function onBannerSelected(event) {
+      const file = event.target.files?.[0];
+      event.target.value = "";
+      if (!file) return;
+
+      bannerError.value = "";
+      try {
+        state.settings.company.bannerUrl = await readCompanyImage(file, "banner");
+      } catch (error) {
+        bannerError.value = error.message;
+      }
+    }
+
+    function removeLogo() {
+      state.settings.company.logoUrl = null;
+      logoError.value = "";
+    }
+
+    function removeBanner() {
+      state.settings.company.bannerUrl = null;
+      bannerError.value = "";
+    }
+
     return {
+      bannerError,
+      bannerInput,
+      careerPageUrl,
       careersPerksText,
-      state,
-      importText,
+      logoError,
+      logoInput,
+      onBannerSelected,
+      onLogoSelected,
+      removeBanner,
+      removeLogo,
+      triggerBannerUpload,
+      triggerLogoUpload,
+      state,      importText,
       exportText,
       importError,
       importSuccess,
@@ -95,6 +159,86 @@ export default defineComponent({
               <div class="col-md-6">
                 <label class="form-label">Settore</label>
                 <input v-model="state.settings.company.industry" class="form-control" />
+              </div>
+              <div class="col-12">
+                <label class="form-label">Logo aziendale</label>
+                <div class="company-brand-upload">
+                  <div class="company-brand-preview company-brand-preview--logo">
+                    <img
+                      v-if="state.settings.company.logoUrl"
+                      :src="state.settings.company.logoUrl"
+                      alt="Logo aziendale"
+                    />
+                    <div v-else class="company-brand-placeholder">
+                      <i class="bi bi-image"></i>
+                      <span>Nessun logo caricato</span>
+                    </div>
+                  </div>
+                  <div class="company-brand-actions">
+                    <input
+                      ref="logoInput"
+                      type="file"
+                      accept="image/*"
+                      class="d-none"
+                      @change="onLogoSelected"
+                    />
+                    <button type="button" class="btn btn-light border" @click="triggerLogoUpload">
+                      <i class="bi bi-upload me-1"></i> Carica logo
+                    </button>
+                    <button
+                      v-if="state.settings.company.logoUrl"
+                      type="button"
+                      class="btn btn-outline-danger"
+                      @click="removeLogo"
+                    >
+                      Rimuovi
+                    </button>
+                    <div class="text-secondary small">
+                      PNG, JPG, SVG o WebP. Max 1 MB. Usato nel sito carriere.
+                    </div>
+                    <div v-if="logoError" class="alert alert-danger small py-2 mb-0">{{ logoError }}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Banner carriere</label>
+                <div class="company-brand-upload">
+                  <div class="company-brand-preview company-brand-preview--banner">
+                    <img
+                      v-if="state.settings.company.bannerUrl"
+                      :src="state.settings.company.bannerUrl"
+                      alt="Banner carriere"
+                    />
+                    <div v-else class="company-brand-placeholder">
+                      <i class="bi bi-panorama"></i>
+                      <span>Nessun banner caricato</span>
+                    </div>
+                  </div>
+                  <div class="company-brand-actions">
+                    <input
+                      ref="bannerInput"
+                      type="file"
+                      accept="image/*"
+                      class="d-none"
+                      @change="onBannerSelected"
+                    />
+                    <button type="button" class="btn btn-light border" @click="triggerBannerUpload">
+                      <i class="bi bi-upload me-1"></i> Carica banner
+                    </button>
+                    <button
+                      v-if="state.settings.company.bannerUrl"
+                      type="button"
+                      class="btn btn-outline-danger"
+                      @click="removeBanner"
+                    >
+                      Rimuovi
+                    </button>
+                    <div class="text-secondary small">
+                      Immagine orizzontale consigliata. Max 2 MB. Usata nell'hero del sito carriere.
+                    </div>
+                    <div v-if="bannerError" class="alert alert-danger small py-2 mb-0">{{ bannerError }}</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -164,9 +308,14 @@ export default defineComponent({
                 </div>
               </div>
             </div>
-            <router-link to="/carriere" class="btn btn-outline-primary mt-3">
+            <a
+              :href="careerPageUrl()"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-outline-primary mt-3"
+            >
               <i class="bi bi-box-arrow-up-right me-1"></i> Anteprima sito carriere
-            </router-link>
+            </a>
           </div>
         </div>
 

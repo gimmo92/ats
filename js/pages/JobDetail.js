@@ -6,6 +6,7 @@ import {
   updateJob,
   deleteJob,
   candidatesByJob,
+  careerPageUrl,
   JOB_STATUSES,
   EMPLOYMENT_TYPES,
   WORK_MODES,
@@ -103,10 +104,8 @@ export default defineComponent({
       });
     }
 
-    const careersPreviewLink = computed(() =>
-      job.value
-        ? { name: "career-job-detail", params: { id: job.value.id } }
-        : null
+    const careersPreviewUrl = computed(() =>
+      job.value ? careerPageUrl(job.value.id) : ""
     );
 
     return {
@@ -133,7 +132,7 @@ export default defineComponent({
       statusVariant,
       setStatus,
       toggleCareersPublished,
-      careersPreviewLink,
+      careersPreviewUrl,
       state,
     };
   },
@@ -407,13 +406,15 @@ export default defineComponent({
             >
               {{ job.careersPublished !== false ? 'Rimuovi dal sito carriere' : 'Pubblica sul sito carriere' }}
             </button>
-            <router-link
+            <a
               v-if="job.careersPublished !== false && job.status === 'open'"
-              :to="careersPreviewLink"
+              :href="careersPreviewUrl"
+              target="_blank"
+              rel="noopener noreferrer"
               class="btn btn-outline-primary w-100"
             >
               <i class="bi bi-box-arrow-up-right me-1"></i> Anteprima pagina pubblica
-            </router-link>
+            </a>
           </div>
         </div>
 

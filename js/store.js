@@ -88,6 +88,44 @@ export function formatDateTime(iso) {
   });
 }
 
+export function careerPageUrl(jobId = "") {
+  const base = `${window.location.origin}${window.location.pathname}`;
+  return jobId
+    ? `${base}#/carriere/${encodeURIComponent(jobId)}`
+    : `${base}#/carriere`;
+}
+
+export const COMPANY_IMAGE_LIMITS = {
+  logo: { maxBytes: 1024 * 1024, label: "Logo" },
+  banner: { maxBytes: 2 * 1024 * 1024, label: "Banner" },
+};
+
+export function readCompanyImage(file, kind = "logo") {
+  return new Promise((resolve, reject) => {
+    if (!file || !file.type?.startsWith("image/")) {
+      reject(new Error("Seleziona un file immagine valido."));
+      return;
+    }
+
+    const limit = COMPANY_IMAGE_LIMITS[kind]?.maxBytes || 2 * 1024 * 1024;
+    if (file.size > limit) {
+      const maxMb = (limit / (1024 * 1024)).toFixed(1);
+      reject(
+        new Error(
+          `Il file supera la dimensione massima consentita (${maxMb} MB).`
+        )
+      );
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () =>
+      reject(new Error("Impossibile leggere il file selezionato."));
+    reader.readAsDataURL(file);
+  });
+}
+
 export function relativeFromNow(iso) {
   if (!iso) return "";
   const d = new Date(iso).getTime();
@@ -626,6 +664,8 @@ function seed() {
       name: "TalentFlow",
       website: "https://talentflow.example.com",
       industry: "SaaS",
+      logoUrl: null,
+      bannerUrl: null,
     },
     user: {
       name: "Recruiter Demo",
@@ -690,6 +730,13 @@ function candidate(partial) {
    ============================================================ */
 function normalizeState(parsed) {
   if (!parsed.settings) parsed.settings = {};
+  if (!parsed.settings.company) parsed.settings.company = {};
+  if (parsed.settings.company.logoUrl === undefined) {
+    parsed.settings.company.logoUrl = null;
+  }
+  if (parsed.settings.company.bannerUrl === undefined) {
+    parsed.settings.company.bannerUrl = null;
+  }
   if (!parsed.settings.careersPage) {
     parsed.settings.careersPage = defaultCareersPageSettings();
   } else {
