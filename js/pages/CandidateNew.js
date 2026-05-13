@@ -11,6 +11,13 @@ import { state, addCandidate } from "../store.js";
 
 const EXT_SESSION_IMPORT_KEY = "__TF_ATS_LI_IMPORT__";
 
+/** Valori demo per istruzione quando si importa da LinkedIn (estensione). */
+const EXTENSION_IMPORT_DUMMY_EDU = {
+  educationLevel: "Laurea magistrale",
+  university: "Politecnico di Milano",
+  faculty: "Ingegneria Gestionale",
+};
+
 export default defineComponent({
   name: "CandidateNew",
   setup() {
@@ -108,6 +115,7 @@ export default defineComponent({
         education: Array.isArray(payload.education)
           ? payload.education
           : model.value.education,
+        ...EXTENSION_IMPORT_DUMMY_EDU,
       };
       Object.assign(model.value, patch);
       model.value = { ...model.value };

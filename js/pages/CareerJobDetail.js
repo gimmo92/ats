@@ -131,7 +131,6 @@ export default defineComponent({
           <router-link to="/carriere" class="career-back-link">
             <i class="bi bi-arrow-left"></i> Tutte le posizioni
           </router-link>
-          <span class="career-eyebrow">{{ job.department || 'Team' }}</span>
           <h1 class="career-detail-title">{{ job.title }}</h1>
           <div class="career-job-meta career-detail-meta">
             <span><i class="bi bi-geo-alt"></i> {{ job.location || 'Da definire' }}</span>

@@ -85,7 +85,6 @@ export default defineComponent({
     >
       <div class="career-hero-inner">
         <div class="career-hero-copy">
-          <span class="career-eyebrow">{{ company.industry || 'Opportunità di lavoro' }}</span>
           <h1 class="career-hero-title">{{ careers.headline }}</h1>
           <p class="career-hero-text">{{ careers.subheadline }}</p>
           <div class="career-hero-actions">
@@ -127,7 +126,6 @@ export default defineComponent({
       <section class="career-section career-culture">
         <div class="row g-4 align-items-start">
           <div class="col-12 col-lg-7">
-            <span class="career-eyebrow">Cultura</span>
             <h2 class="career-section-title">{{ careers.cultureTitle }}</h2>
             <p class="career-section-text mb-0">{{ careers.cultureText }}</p>
           </div>
@@ -150,7 +148,6 @@ export default defineComponent({
       <section id="posizioni-aperte" class="career-section">
         <div class="career-section-header">
           <div>
-            <span class="career-eyebrow">Opportunità</span>
             <h2 class="career-section-title mb-1">Posizioni aperte</h2>
             <p class="career-section-text mb-0">
               {{ filtered.length }} posizioni disponibili per candidature online.

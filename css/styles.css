@@ -137,20 +137,6 @@ body {
   box-shadow: none;
 }
 
-/* ====== Splash ====== */
-.splash {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bs-body-bg);
-  z-index: 9999;
-}
-.splash-inner {
-  text-align: center;
-}
-
 /* ====== Layout ====== */
 .app-shell {
   display: flex;
@@ -837,19 +823,6 @@ body {
   display: block;
   font-size: 0.82rem;
   color: rgba(255, 255, 255, 0.78);
-}
-
-.career-eyebrow {
-  display: inline-block;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.72);
-}
-
-.career-section .career-eyebrow {
-  color: var(--career-blue);
 }
 
 .career-section {
