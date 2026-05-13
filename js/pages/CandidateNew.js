@@ -14,7 +14,8 @@ export default defineComponent({
     const importError = ref("");
 
     const model = ref({
-      name: "",
+      firstName: "",
+      lastName: "",
       email: "",
       phone: "",
       role: "",
@@ -30,6 +31,17 @@ export default defineComponent({
       experience: [],
       education: [],
     });
+
+    function splitFullName(full) {
+      const t = String(full || "").trim();
+      if (!t) return { firstName: "", lastName: "" };
+      const i = t.indexOf(" ");
+      if (i === -1) return { firstName: t, lastName: "" };
+      return {
+        firstName: t.slice(0, i).trim(),
+        lastName: t.slice(i + 1).trim(),
+      };
+    }
 
     function isJunkSkillText(s) {
       const t = String(s || "").trim();
@@ -53,8 +65,23 @@ export default defineComponent({
         currentRole ||
         roleFromPayload ||
         (headline ? headline.split(/\s+at\s+|\s+@\s+|\s+·\s+/i)[0].trim() : "");
+      const fullName = (payload.name || "").trim();
+      const fromPayloadNames = {
+        firstName: (payload.firstName || "").trim(),
+        lastName: (payload.lastName || "").trim(),
+      };
+      const fromSplit = splitFullName(fullName);
+      const firstName =
+        fromPayloadNames.firstName ||
+        fromSplit.firstName ||
+        model.value.firstName;
+      const lastName =
+        fromPayloadNames.lastName ||
+        fromSplit.lastName ||
+        model.value.lastName;
       const patch = {
-        name: (payload.name || "").trim() || model.value.name,
+        firstName,
+        lastName,
         email: (payload.email || "").trim() || model.value.email,
         phone: (payload.phone || "").trim() || model.value.phone,
         role: role || model.value.role,
@@ -141,13 +168,16 @@ export default defineComponent({
       try {
         importing.value = true;
         const draft = await importProfileFromUrl(linkedinUrl.value);
+        const sp = splitFullName(draft.name);
         Object.assign(model.value, {
-          name: draft.name,
+          firstName: sp.firstName,
+          lastName: sp.lastName,
           headline: draft.headline,
           linkedinUrl: draft.linkedinUrl,
           source: "LinkedIn",
           notes: draft.notes,
         });
+        model.value = { ...model.value };
       } catch (e) {
         importError.value = e.message;
       } finally {
@@ -156,17 +186,22 @@ export default defineComponent({
     }
 
     function save() {
-      if (!model.value.name) {
-        alert("Il nome è obbligatorio");
+      const first = (model.value.firstName || "").trim();
+      const last = (model.value.lastName || "").trim();
+      if (!first || !last) {
+        alert("Nome e cognome sono obbligatori");
         return;
       }
+      const fullName = `${first} ${last}`.trim();
       const skills = (model.value._skillsText || "")
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean);
-      const { _skillsText: _unused, ...rest } = model.value;
+      const { _skillsText: _unused, firstName: _f, lastName: _l, ...rest } =
+        model.value;
       const c = addCandidate({
         ...rest,
+        name: fullName,
         skills,
         experience: model.value.experience || [],
         education: model.value.education || [],
@@ -212,7 +247,7 @@ export default defineComponent({
               chrome://extensions (Modalità sviluppatore → Carica estensione non pacchettizzata). Apri un profilo
               <code class="small">/in/…</code>, clicca l'icona dell'estensione e poi «Leggi profilo e apri nuovo candidato».
             </p>
-            <input v-model="linkedinUrl" class="form-control mb-2" placeholder="https://www.linkedin.com/in/nome-cognome/" />
+            <input v-model="linkedinUrl" class="form-control mb-2" placeholder="https://www.linkedin.com/in/nome-e-cognome/" />
             <div v-if="importError" class="alert alert-danger small py-2">{{ importError }}</div>
             <button class="btn btn-linkedin w-100" :disabled="importing" @click="importFromLinkedIn">
               <span v-if="importing"><span class="spinner-border spinner-border-sm me-1"></span> Importando...</span>
@@ -229,7 +264,11 @@ export default defineComponent({
             <div class="row g-3">
               <div class="col-md-6">
                 <label class="form-label">Nome *</label>
-                <input v-model="model.name" class="form-control" required />
+                <input v-model="model.firstName" class="form-control" placeholder="Nome" required />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Cognome *</label>
+                <input v-model="model.lastName" class="form-control" placeholder="Cognome" required />
               </div>
               <div class="col-md-6">
                 <label class="form-label">Email</label>
