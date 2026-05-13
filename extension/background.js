@@ -4,12 +4,7 @@ function isAtsNewCandidateUrl(url) {
   if (!url || typeof url !== "string") return false;
   try {
     const u = new URL(url);
-    const host = u.hostname;
-    const isAts =
-      host === "localhost" ||
-      host === "127.0.0.1" ||
-      host.endsWith(".vercel.app");
-    if (!isAts) return false;
+    if (!/^https?:$/i.test(u.protocol)) return false;
     const h = u.hash || "";
     const p = u.pathname || "";
     return (
@@ -21,13 +16,23 @@ function isAtsNewCandidateUrl(url) {
   }
 }
 
+const SESSION_IMPORT_KEY = "__TF_ATS_LI_IMPORT__";
+
 function injectProfileIntoTab(tabId, profile) {
   return chrome.scripting.executeScript({
     target: { tabId },
     world: "MAIN",
-    args: [profile],
-    func: (payload) => {
+    args: [profile, SESSION_IMPORT_KEY],
+    func: (payload, storageKey) => {
       const deliver = () => {
+        try {
+          sessionStorage.setItem(
+            storageKey,
+            JSON.stringify({ v: 1, at: Date.now(), payload })
+          );
+        } catch (e) {
+          console.warn("TalentFlow sessionStorage import", e);
+        }
         try {
           window.__TALENTFLOW_EXTENSION_IMPORT__ = payload;
           window.dispatchEvent(
@@ -42,6 +47,7 @@ function injectProfileIntoTab(tabId, profile) {
       setTimeout(deliver, 1100);
       setTimeout(deliver, 2200);
       setTimeout(deliver, 3800);
+      setTimeout(deliver, 5500);
     },
   });
 }
@@ -78,7 +84,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 });
 
 function pollDeliverAfterOpen(tabId) {
-  const delays = [150, 400, 700, 1100, 1600, 2200, 3000, 4500];
+  const delays = [150, 400, 700, 1100, 1600, 2200, 3000, 4500, 6500];
   delays.forEach((ms) => {
     setTimeout(() => {
       chrome.tabs.get(tabId, (t) => {

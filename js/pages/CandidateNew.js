@@ -3,6 +3,8 @@ import { useRouter } from "vue-router";
 import { state, addCandidate } from "../store.js";
 import { importProfileFromUrl } from "../linkedin.js";
 
+const EXT_SESSION_IMPORT_KEY = "__TF_ATS_LI_IMPORT__";
+
 export default defineComponent({
   name: "CandidateNew",
   setup() {
@@ -70,6 +72,30 @@ export default defineComponent({
           : model.value.education,
       };
       Object.assign(model.value, patch);
+      model.value = { ...model.value };
+    }
+
+    function tryConsumeSessionStorageImport() {
+      try {
+        const raw = sessionStorage.getItem(EXT_SESSION_IMPORT_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        const payload = parsed?.payload ?? parsed;
+        if (!payload || typeof payload !== "object") return;
+        sessionStorage.removeItem(EXT_SESSION_IMPORT_KEY);
+        applyExtensionImport(payload);
+      } catch {
+        try {
+          sessionStorage.removeItem(EXT_SESSION_IMPORT_KEY);
+        } catch {
+          /* ignore */
+        }
+      }
+    }
+
+    function tryConsumeAllExtensionImports() {
+      tryConsumeSessionStorageImport();
+      tryConsumePendingExtensionImport();
     }
 
     function tryConsumePendingExtensionImport() {
@@ -81,17 +107,29 @@ export default defineComponent({
 
     const onExtensionImport = (e) => {
       if (e?.detail) applyExtensionImport(e.detail);
+      tryConsumeAllExtensionImports();
     };
 
+    let pollId = null;
+
     onMounted(() => {
-      tryConsumePendingExtensionImport();
+      tryConsumeAllExtensionImports();
       window.addEventListener("talentflow-extension-import", onExtensionImport);
-      nextTick(() => tryConsumePendingExtensionImport());
-      const delays = [300, 600, 1200, 2200, 4000];
-      delays.forEach((ms) => setTimeout(() => tryConsumePendingExtensionImport(), ms));
+      nextTick(() => tryConsumeAllExtensionImports());
+      const delays = [200, 500, 900, 1500, 2500, 4000, 6000, 8500];
+      delays.forEach((ms) => setTimeout(() => tryConsumeAllExtensionImports(), ms));
+      let ticks = 0;
+      pollId = setInterval(() => {
+        tryConsumeAllExtensionImports();
+        if (++ticks > 48) {
+          clearInterval(pollId);
+          pollId = null;
+        }
+      }, 250);
     });
     onBeforeUnmount(() => {
       window.removeEventListener("talentflow-extension-import", onExtensionImport);
+      if (pollId != null) clearInterval(pollId);
     });
 
     async function importFromLinkedIn() {

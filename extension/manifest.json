@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "TalentFlow ATS — Import LinkedIn",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Estrae dati da un profilo LinkedIn e li invia a TalentFlow ATS (localhost).",
   "action": {
     "default_title": "Importa profilo in TalentFlow",
@@ -12,9 +12,8 @@
     "https://www.linkedin.com/*",
     "https://*.linkedin.com/*",
     "https://linkedin.com/*",
-    "http://localhost/*",
-    "http://127.0.0.1/*",
-    "https://*.vercel.app/*"
+    "http://*/*",
+    "https://*/*"
   ],
   "background": {
     "service_worker": "background.js"
