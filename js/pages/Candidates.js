@@ -1,10 +1,11 @@
 import { defineComponent, computed, ref } from "vue";
 import {
   state,
-  STAGES,
   jobById,
   formatDate,
   relativeFromNow,
+  pipelineStageById,
+  stageBadgeStyle,
 } from "../store.js";
 import { Avatar } from "../components/Avatar.js";
 
@@ -57,7 +58,7 @@ export default defineComponent({
       return list;
     });
 
-    const stageLabel = (id) => STAGES.find((s) => s.id === id)?.label || id;
+    const stageLabel = (id) => pipelineStageById(id)?.label || id;
 
     return {
       search,
@@ -66,9 +67,9 @@ export default defineComponent({
       sourceFilter,
       sortBy,
       filtered,
-      STAGES,
       state,
       stageLabel,
+      stageBadgeStyle,
       jobById,
       relativeFromNow,
       formatDate,
@@ -104,7 +105,7 @@ export default defineComponent({
           <div class="col-6 col-md-2">
             <select v-model="stageFilter" class="form-select">
               <option value="">Tutte le fasi</option>
-              <option v-for="s in STAGES" :key="s.id" :value="s.id">{{ s.label }}</option>
+              <option v-for="s in state.settings.pipelineStages" :key="s.id" :value="s.id">{{ s.label }}</option>
             </select>
           </div>
           <div class="col-6 col-md-3">
@@ -183,7 +184,7 @@ export default defineComponent({
                 <div class="text-secondary small">{{ jobById(c.jobId)?.title || '—' }}</div>
               </td>
               <td>
-                <span class="badge stage-badge" :class="'bg-stage-' + c.stage">{{ stageLabel(c.stage) }}</span>
+                <span class="badge stage-badge stage-badge-colored" :style="stageBadgeStyle(c.stage)">{{ stageLabel(c.stage) }}</span>
               </td>
               <td class="small">{{ c.source || '—' }}</td>
               <td>

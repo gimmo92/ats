@@ -3,14 +3,21 @@ import { reactive, watch, computed } from "vue";
 /* ============================================================
    Costanti
    ============================================================ */
-export const STAGES = [
-  { id: "applied", label: "Candidatura", color: "#94a3b8" },
-  { id: "screening", label: "Screening", color: "#f59e0b" },
-  { id: "interview", label: "Colloquio", color: "#3b82f6" },
-  { id: "offer", label: "Offerta", color: "#8b5cf6" },
-  { id: "hired", label: "Assunto", color: "#10b981" },
-  { id: "rejected", label: "Rifiutato", color: "#ef4444" },
+export const DEFAULT_PIPELINE_STAGES = [
+  { id: "applied", label: "Candidatura", color: "#94a3b8", locked: true },
+  { id: "screening", label: "Screening", color: "#f59e0b", locked: false },
+  { id: "interview", label: "Colloquio", color: "#3b82f6", locked: false },
+  { id: "offer", label: "Offerta", color: "#8b5cf6", locked: false },
+  { id: "hired", label: "Assunto", color: "#10b981", locked: true },
+  { id: "rejected", label: "Rifiutato", color: "#ef4444", locked: true },
 ];
+
+/** @deprecated Usa state.settings.pipelineStages o getPipelineStages() */
+export const STAGES = DEFAULT_PIPELINE_STAGES;
+
+function clonePipelineStages() {
+  return DEFAULT_PIPELINE_STAGES.map((s) => ({ ...s }));
+}
 
 export const JOB_STATUSES = [
   { id: "open", label: "Aperta", variant: "success" },
@@ -690,6 +697,7 @@ function seed() {
     },
     theme: "light",
     careersPage: defaultCareersPageSettings(),
+    pipelineStages: clonePipelineStages(),
   };
 
   return { jobs, candidates, interviews, activity, settings };
@@ -754,6 +762,27 @@ function normalizeState(parsed) {
       ...parsed.settings.careersPage,
     };
   }
+  if (!parsed.settings.pipelineStages?.length) {
+    parsed.settings.pipelineStages = clonePipelineStages();
+  } else {
+    parsed.settings.pipelineStages = parsed.settings.pipelineStages.map(
+      (s) => {
+        const d = DEFAULT_PIPELINE_STAGES.find((x) => x.id === s.id);
+        return {
+          id: String(s.id || "").trim() || uid("stg"),
+          label: String((s.label ?? d?.label) || "Fase").trim() || "Fase",
+          color: s.color || d?.color || "#64748b",
+          locked: d ? !!d.locked : false,
+        };
+      }
+    );
+  }
+  const validStageIds = new Set(
+    parsed.settings.pipelineStages.map((s) => s.id)
+  );
+  parsed.candidates.forEach((c) => {
+    if (!validStageIds.has(c.stage)) c.stage = "applied";
+  });
   parsed.jobs.forEach((job) => {
     if (job.careersPublished === undefined) {
       job.careersPublished = job.status === "open";
@@ -934,17 +963,65 @@ export function deleteCandidate(id) {
   });
 }
 
+export function pipelineStageById(id) {
+  return state.settings.pipelineStages?.find((s) => s.id === id) || null;
+}
+
+export function stageBadgeStyle(stageId) {
+  const s = pipelineStageById(stageId);
+  const bg = s?.color || "#64748b";
+  return { backgroundColor: bg, color: "#fff" };
+}
+
+export function addPipelineStage({ label, color }) {
+  const trimmed = (label || "").trim();
+  if (!trimmed) throw new Error("Inserisci un nome per la fase.");
+  const st = {
+    id: uid("stg"),
+    label: trimmed,
+    color: (color || "").trim() || "#6366f1",
+    locked: false,
+  };
+  state.settings.pipelineStages.push(st);
+  logActivity({
+    type: "system",
+    message: `Nuova fase pipeline: ${st.label}`,
+  });
+  return st;
+}
+
+export function removePipelineStage(stageId, moveToId) {
+  const stages = state.settings.pipelineStages;
+  const idx = stages.findIndex((s) => s.id === stageId);
+  if (idx === -1) throw new Error("Fase non trovata.");
+  const st = stages[idx];
+  if (st.locked) throw new Error("Questa fase non può essere eliminata.");
+  const target = stages.find((s) => s.id === moveToId);
+  if (!target || target.id === stageId) {
+    throw new Error("Seleziona una fase di destinazione valida.");
+  }
+  state.candidates.forEach((c) => {
+    if (c.stage === stageId) c.stage = moveToId;
+  });
+  stages.splice(idx, 1);
+  logActivity({
+    type: "system",
+    message: `Fase "${st.label}" rimossa; candidati spostati in "${target.label}"`,
+  });
+}
+
 export function moveCandidateStage(id, newStage) {
   const c = candidateById(id);
   if (!c || c.stage === newStage) return;
   const old = c.stage;
   c.stage = newStage;
-  const stageLabel = STAGES.find((s) => s.id === newStage)?.label || newStage;
+  const stageLabel =
+    pipelineStageById(newStage)?.label || newStage;
   logActivity({
     type: "stage_change",
     candidateId: id,
     message: `${c.name}: ${
-      STAGES.find((s) => s.id === old)?.label || old
+      pipelineStageById(old)?.label || old
     } → ${stageLabel}`,
   });
   if (newStage === "hired") {

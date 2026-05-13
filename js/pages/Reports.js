@@ -1,5 +1,5 @@
 import { defineComponent, computed, onMounted, onBeforeUnmount, ref, watch } from "vue";
-import { state, STAGES, jobById } from "../store.js";
+import { state, jobById } from "../store.js";
 
 export default defineComponent({
   name: "ReportsPage",
@@ -36,10 +36,12 @@ export default defineComponent({
     });
 
     const funnelData = computed(() =>
-      STAGES.filter((s) => s.id !== "rejected").map((s) => ({
-        ...s,
-        count: state.candidates.filter((c) => c.stage === s.id).length,
-      }))
+      state.settings.pipelineStages
+        .filter((s) => s.id !== "rejected")
+        .map((s) => ({
+          ...s,
+          count: state.candidates.filter((c) => c.stage === s.id).length,
+        }))
     );
 
     const sourceData = computed(() => {

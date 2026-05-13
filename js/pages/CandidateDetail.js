@@ -2,7 +2,6 @@ import { defineComponent, computed, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import {
   state,
-  STAGES,
   candidateById,
   jobById,
   updateCandidate,
@@ -92,7 +91,14 @@ export default defineComponent({
         notes: i.notes,
         status: "scheduled",
       });
-      if (candidate.value.stage === "applied" || candidate.value.stage === "screening") {
+      const interviewStage = state.settings.pipelineStages.find(
+        (s) => s.id === "interview"
+      );
+      if (
+        interviewStage &&
+        (candidate.value.stage === "applied" ||
+          candidate.value.stage === "screening")
+      ) {
         moveCandidateStage(candidate.value.id, "interview");
       }
       showScheduleModal.value = false;
@@ -137,7 +143,6 @@ export default defineComponent({
 
     return {
       candidate,
-      STAGES,
       jobById,
       editing,
       editModel,
@@ -205,10 +210,11 @@ export default defineComponent({
             <div class="d-flex align-items-center gap-2 flex-wrap">
               <span class="fw-semibold me-2">Fase pipeline:</span>
               <button
-                v-for="s in STAGES"
+                v-for="s in state.settings.pipelineStages"
                 :key="s.id"
                 class="btn btn-sm"
-                :class="candidate.stage === s.id ? 'bg-stage-' + s.id + ' text-white border-0' : 'btn-light border'"
+                :class="candidate.stage === s.id ? 'text-white border-0' : 'btn-light border'"
+                :style="candidate.stage === s.id ? { backgroundColor: s.color, borderColor: s.color } : {}"
                 @click="changeStage(s.id)"
               >
                 {{ s.label }}

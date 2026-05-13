@@ -123,19 +123,19 @@ body {
   transition: color 0.15s, border-color 0.15s;
 }
 .nav-tab:hover {
-  color: #2152ff;
+  color: #0a6cd2;
   background: transparent;
 }
 .nav-tab.router-link-active {
-  color: #2152ff;
-  border-bottom-color: #2152ff;
+  color: #0a6cd2;
+  border-bottom-color: #0a6cd2;
   background: transparent;
   box-shadow: none;
 }
 [data-bs-theme="dark"] .nav-tab.router-link-active,
 [data-bs-theme="dark"] .nav-tab:hover {
-  color: #21d4fd;
-  border-bottom-color: #21d4fd;
+  color: #0a6cd2;
+  border-bottom-color: #0a6cd2;
 }
 .nav-tab i {
   font-size: 1rem;
@@ -339,14 +339,14 @@ body {
 /* ====== Pipeline Kanban ====== */
 .kanban-board {
   display: grid;
-  grid-template-columns: repeat(6, minmax(260px, 1fr));
+  grid-template-columns: repeat(var(--kanban-cols, 6), minmax(260px, 1fr));
   gap: 1rem;
   overflow-x: auto;
   padding-bottom: 0.5rem;
 }
 @media (max-width: 1400px) {
   .kanban-board {
-    grid-template-columns: repeat(6, 280px);
+    grid-template-columns: repeat(var(--kanban-cols, 6), 280px);
   }
 }
 .kanban-column {
@@ -508,6 +508,9 @@ body {
 .bg-stage-offer { background: #8b5cf6 !important; color: white; }
 .bg-stage-hired { background: #10b981 !important; color: white; }
 .bg-stage-rejected { background: #ef4444 !important; color: white; }
+.stage-badge-colored {
+  border: 0;
+}
 
 /* Scrollbar leggera */
 ::-webkit-scrollbar { width: 10px; height: 10px; }

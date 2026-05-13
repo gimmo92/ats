@@ -10,8 +10,9 @@ import {
   JOB_STATUSES,
   EMPLOYMENT_TYPES,
   WORK_MODES,
-  STAGES,
   formatDate,
+  pipelineStageById,
+  stageBadgeStyle,
 } from "../store.js";
 import { postJobToLinkedIn, buildShareUrl } from "../linkedin.js";
 import { Avatar } from "../components/Avatar.js";
@@ -81,7 +82,7 @@ export default defineComponent({
     );
 
     const stageBreakdown = computed(() =>
-      STAGES.map((s) => ({
+      state.settings.pipelineStages.map((s) => ({
         ...s,
         count: candidates.value.filter((c) => c.stage === s.id).length,
       }))
@@ -126,8 +127,9 @@ export default defineComponent({
       JOB_STATUSES,
       EMPLOYMENT_TYPES,
       WORK_MODES,
-      STAGES,
       formatDate,
+      pipelineStageById,
+      stageBadgeStyle,
       statusLabel,
       statusVariant,
       setStatus,
@@ -348,8 +350,8 @@ export default defineComponent({
                     </div>
                   </td>
                   <td>
-                    <span class="badge stage-badge" :class="'bg-stage-' + c.stage">
-                      {{ STAGES.find(s => s.id === c.stage)?.label }}
+                    <span class="badge stage-badge stage-badge-colored" :style="stageBadgeStyle(c.stage)">
+                      {{ pipelineStageById(c.stage)?.label }}
                     </span>
                   </td>
                   <td>

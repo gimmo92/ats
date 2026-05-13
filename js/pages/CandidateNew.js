@@ -31,16 +31,22 @@ export default defineComponent({
 
     function applyExtensionImport(payload) {
       if (!payload || typeof payload !== "object") return;
-      const skillsText = Array.isArray(payload.skills)
-        ? payload.skills.join(", ")
-        : "";
+      const skillsArr = Array.isArray(payload.skills) ? payload.skills : [];
+      const skillsText = skillsArr.join(", ");
+      const headline = (payload.headline || "").trim();
+      const currentRole = (payload.currentRole || "").trim();
+      const roleFromPayload = (payload.role || "").trim();
+      const role =
+        currentRole ||
+        roleFromPayload ||
+        (headline ? headline.split(/\s+at\s+|\s+@\s+|\s+·\s+/i)[0].trim() : "");
       Object.assign(model.value, {
         name: payload.name || "",
         email: payload.email || "",
         phone: payload.phone || "",
-        role: payload.role || payload.headline || "",
-        location: payload.location || "",
-        headline: payload.headline || "",
+        role,
+        location: (payload.location || "").trim(),
+        headline,
         linkedinUrl: payload.linkedinUrl || "",
         source: payload.source || "LinkedIn (estensione)",
         notes: payload.notes || "",

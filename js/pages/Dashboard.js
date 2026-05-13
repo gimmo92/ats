@@ -2,12 +2,13 @@ import { defineComponent, computed, onMounted, ref, onBeforeUnmount, watch } fro
 import {
   state,
   stats,
-  STAGES,
   candidateById,
   jobById,
   formatDate,
   formatDateTime,
   relativeFromNow,
+  pipelineStageById,
+  stageBadgeStyle,
 } from "../store.js";
 import { Avatar } from "../components/Avatar.js";
 
@@ -35,8 +36,8 @@ export default defineComponent({
     );
 
     const pipelineCounts = computed(() =>
-      STAGES.map(
-        (s) => state.candidates.filter((c) => c.stage === s.id).length
+      state.settings.pipelineStages.map((s) =>
+        state.candidates.filter((c) => c.stage === s.id).length
       )
     );
 
@@ -88,15 +89,16 @@ export default defineComponent({
 
       // Pipeline
       if (pipelineCanvas.value) {
+        const stages = state.settings.pipelineStages;
         charts.push(
           new Chart(pipelineCanvas.value, {
             type: "bar",
             data: {
-              labels: STAGES.map((s) => s.label),
+              labels: stages.map((s) => s.label),
               datasets: [
                 {
                   data: pipelineCounts.value,
-                  backgroundColor: STAGES.map((s) => s.color),
+                  backgroundColor: stages.map((s) => s.color),
                   borderRadius: 8,
                   barThickness: 28,
                 },
@@ -209,8 +211,15 @@ export default defineComponent({
       () => buildCharts(),
       { deep: true }
     );
+    watch(
+      () => state.settings.pipelineStages,
+      () => buildCharts(),
+      { deep: true }
+    );
 
     return {
+      pipelineStageById,
+      stageBadgeStyle,
       stats,
       upcomingInterviews,
       recentActivity,
@@ -421,8 +430,8 @@ export default defineComponent({
                   </td>
                   <td class="small">{{ c.role || '—' }}</td>
                   <td>
-                    <span class="badge stage-badge" :class="'bg-stage-' + c.stage">
-                      {{ ({applied:'Candidatura',screening:'Screening',interview:'Colloquio',offer:'Offerta',hired:'Assunto',rejected:'Rifiutato'})[c.stage] }}
+                    <span class="badge stage-badge stage-badge-colored" :style="stageBadgeStyle(c.stage)">
+                      {{ pipelineStageById(c.stage)?.label || c.stage }}
                     </span>
                   </td>
                   <td class="small text-secondary">{{ relativeFromNow(c.appliedAt) }}</td>
