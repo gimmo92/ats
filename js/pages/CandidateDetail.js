@@ -10,6 +10,7 @@ import {
   addInterview,
   formatDate,
   formatDateTime,
+  readCandidateCv,
 } from "../store.js";
 import { Avatar } from "../components/Avatar.js";
 
@@ -24,12 +25,20 @@ export default defineComponent({
     const candidate = computed(() => candidateById(route.params.id));
 
     const editModel = ref(null);
+    const cvEditError = ref("");
+    const cvEditInput = ref(null);
+
     function startEdit() {
       if (!candidate.value) return;
       editModel.value = JSON.parse(JSON.stringify(candidate.value));
+      if (editModel.value.cvFileName === undefined)
+        editModel.value.cvFileName = null;
+      if (editModel.value.cvDataUrl === undefined)
+        editModel.value.cvDataUrl = null;
       if (typeof editModel.value.skills === "object")
         editModel.value._skillsText = (editModel.value.skills || []).join(", ");
       editing.value = true;
+      cvEditError.value = "";
     }
     function saveEdit() {
       const m = editModel.value;
@@ -43,6 +52,32 @@ export default defineComponent({
     }
     function cancelEdit() {
       editing.value = false;
+      cvEditError.value = "";
+    }
+
+    function triggerCvEditUpload() {
+      cvEditInput.value?.click();
+    }
+
+    async function onCvEditSelected(event) {
+      const file = event.target.files?.[0];
+      event.target.value = "";
+      if (!file || !editModel.value) return;
+      cvEditError.value = "";
+      try {
+        const { cvDataUrl, cvFileName } = await readCandidateCv(file);
+        editModel.value.cvDataUrl = cvDataUrl;
+        editModel.value.cvFileName = cvFileName;
+      } catch (e) {
+        cvEditError.value = e.message || String(e);
+      }
+    }
+
+    function removeCvEdit() {
+      if (!editModel.value) return;
+      editModel.value.cvDataUrl = null;
+      editModel.value.cvFileName = null;
+      cvEditError.value = "";
     }
 
     const newInterview = ref({
@@ -161,6 +196,11 @@ export default defineComponent({
       formatDate,
       formatDateTime,
       state,
+      cvEditError,
+      cvEditInput,
+      triggerCvEditUpload,
+      onCvEditSelected,
+      removeCvEdit,
     };
   },
   template: `
@@ -285,6 +325,29 @@ export default defineComponent({
               <div class="text-secondary small mb-1">Note</div>
               <div style="white-space: pre-wrap">{{ candidate.notes }}</div>
             </div>
+
+            <hr v-if="candidate.cvDataUrl" />
+            <div v-if="candidate.cvDataUrl">
+              <div class="text-secondary small mb-2">Curriculum vitae</div>
+              <div class="d-flex flex-wrap align-items-center gap-2">
+                <span class="text-break small">{{ candidate.cvFileName || 'CV' }}</span>
+                <a
+                  :href="candidate.cvDataUrl"
+                  class="btn btn-sm btn-outline-primary"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <i class="bi bi-box-arrow-up-right me-1"></i> Apri
+                </a>
+                <a
+                  :href="candidate.cvDataUrl"
+                  class="btn btn-sm btn-outline-primary"
+                  :download="candidate.cvFileName || 'curriculum.pdf'"
+                >
+                  <i class="bi bi-download me-1"></i> Scarica
+                </a>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -387,6 +450,50 @@ export default defineComponent({
               <div class="col-12">
                 <label class="form-label">Note</label>
                 <textarea v-model="editModel.notes" class="form-control" rows="3"></textarea>
+              </div>
+              <div class="col-12">
+                <hr class="my-1" />
+                <label class="form-label">Curriculum vitae</label>
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                  <input
+                    ref="cvEditInput"
+                    type="file"
+                    accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    class="d-none"
+                    @change="onCvEditSelected"
+                  />
+                  <button type="button" class="btn btn-light border" @click="triggerCvEditUpload">
+                    <i class="bi bi-upload me-1"></i> Carica o sostituisci CV
+                  </button>
+                  <button
+                    v-if="editModel.cvDataUrl"
+                    type="button"
+                    class="btn btn-outline-danger"
+                    @click="removeCvEdit"
+                  >
+                    Rimuovi
+                  </button>
+                  <a
+                    v-if="editModel.cvDataUrl"
+                    :href="editModel.cvDataUrl"
+                    class="btn btn-outline-primary"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <i class="bi bi-box-arrow-up-right me-1"></i> Apri
+                  </a>
+                  <a
+                    v-if="editModel.cvDataUrl"
+                    :href="editModel.cvDataUrl"
+                    class="btn btn-outline-primary"
+                    :download="editModel.cvFileName || 'curriculum.pdf'"
+                  >
+                    <i class="bi bi-download me-1"></i> Scarica
+                  </a>
+                </div>
+                <div v-if="editModel.cvFileName" class="small text-secondary text-break">{{ editModel.cvFileName }}</div>
+                <div class="form-text">PDF o Word, max 2,5 MB.</div>
+                <div v-if="cvEditError" class="alert alert-danger small py-2 mb-0 mt-1">{{ cvEditError }}</div>
               </div>
             </div>
             <div class="mt-3 d-flex justify-content-end gap-2">

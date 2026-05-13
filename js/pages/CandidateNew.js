@@ -7,7 +7,7 @@ import {
   nextTick,
 } from "vue";
 import { useRouter } from "vue-router";
-import { state, addCandidate } from "../store.js";
+import { state, addCandidate, readCandidateCv } from "../store.js";
 
 const EXT_SESSION_IMPORT_KEY = "__TF_ATS_LI_IMPORT__";
 
@@ -48,8 +48,12 @@ export default defineComponent({
       notes: "",
       experience: [],
       education: [],
+      cvFileName: null,
+      cvDataUrl: null,
     });
 
+    const cvError = ref("");
+    const cvInput = ref(null);
     function splitFullName(full) {
       const t = String(full || "").trim();
       if (!t) return { firstName: "", lastName: "" };
@@ -118,6 +122,32 @@ export default defineComponent({
         ...EXTENSION_IMPORT_DUMMY_EDU,
       };
       Object.assign(model.value, patch);
+      model.value = { ...model.value };
+    }
+
+    function triggerCvUpload() {
+      cvInput.value?.click();
+    }
+
+    async function onCvSelected(event) {
+      const file = event.target.files?.[0];
+      event.target.value = "";
+      if (!file) return;
+      cvError.value = "";
+      try {
+        const { cvDataUrl, cvFileName } = await readCandidateCv(file);
+        model.value.cvDataUrl = cvDataUrl;
+        model.value.cvFileName = cvFileName;
+        model.value = { ...model.value };
+      } catch (e) {
+        cvError.value = e.message || String(e);
+      }
+    }
+
+    function removeCv() {
+      model.value.cvDataUrl = null;
+      model.value.cvFileName = null;
+      cvError.value = "";
       model.value = { ...model.value };
     }
 
@@ -207,6 +237,11 @@ export default defineComponent({
       state,
       openJobs,
       save,
+      cvError,
+      cvInput,
+      triggerCvUpload,
+      onCvSelected,
+      removeCv,
     };
   },
   template: `
@@ -313,6 +348,50 @@ export default defineComponent({
               <div class="col-12">
                 <label class="form-label">Note</label>
                 <textarea v-model="model.notes" rows="3" class="form-control"></textarea>
+              </div>
+              <div class="col-12">
+                <hr class="my-1" />
+                <label class="form-label">Curriculum vitae</label>
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                  <input
+                    ref="cvInput"
+                    type="file"
+                    accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    class="d-none"
+                    @change="onCvSelected"
+                  />
+                  <button type="button" class="btn btn-light border" @click="triggerCvUpload">
+                    <i class="bi bi-upload me-1"></i> Carica CV
+                  </button>
+                  <button
+                    v-if="model.cvDataUrl"
+                    type="button"
+                    class="btn btn-outline-danger"
+                    @click="removeCv"
+                  >
+                    Rimuovi
+                  </button>
+                  <a
+                    v-if="model.cvDataUrl"
+                    :href="model.cvDataUrl"
+                    class="btn btn-outline-primary"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <i class="bi bi-box-arrow-up-right me-1"></i> Apri
+                  </a>
+                  <a
+                    v-if="model.cvDataUrl"
+                    :href="model.cvDataUrl"
+                    class="btn btn-outline-primary"
+                    :download="model.cvFileName || 'curriculum.pdf'"
+                  >
+                    <i class="bi bi-download me-1"></i> Scarica
+                  </a>
+                </div>
+                <div v-if="model.cvFileName" class="small text-secondary text-break">{{ model.cvFileName }}</div>
+                <div class="form-text">PDF o Word, max 2,5 MB. Il file viene salvato nel browser (localStorage).</div>
+                <div v-if="cvError" class="alert alert-danger small py-2 mb-0 mt-1">{{ cvError }}</div>
               </div>
             </div>
             <div class="mt-3 d-flex justify-content-end gap-2">

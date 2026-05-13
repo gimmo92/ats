@@ -142,6 +142,58 @@ export function readCompanyImage(file, kind = "logo") {
   });
 }
 
+/** CV candidato: max ~2.5 MB, PDF o Word (salvato come data URL in localStorage). */
+export const CANDIDATE_CV_MAX_BYTES = Math.floor(2.5 * 1024 * 1024);
+
+export function readCandidateCv(file) {
+  return new Promise((resolve, reject) => {
+    if (!file) {
+      reject(new Error("Seleziona un file."));
+      return;
+    }
+    const lower = String(file.name || "").toLowerCase();
+    const isPdf =
+      file.type === "application/pdf" || lower.endsWith(".pdf");
+    const isDoc =
+      file.type === "application/msword" || lower.endsWith(".doc");
+    const isDocx =
+      file.type ===
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+      lower.endsWith(".docx");
+    if (!isPdf && !isDoc && !isDocx) {
+      reject(
+        new Error(
+          "Formato non supportato. Carica un PDF o Word (.doc, .docx)."
+        )
+      );
+      return;
+    }
+    if (file.size > CANDIDATE_CV_MAX_BYTES) {
+      reject(
+        new Error(
+          `Il file supera ${(CANDIDATE_CV_MAX_BYTES / (1024 * 1024)).toFixed(1)} MB.`
+        )
+      );
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = String(reader.result || "");
+      if (!dataUrl.startsWith("data:")) {
+        reject(new Error("Impossibile leggere il file."));
+        return;
+      }
+      resolve({
+        cvDataUrl: dataUrl,
+        cvFileName: file.name || "curriculum.pdf",
+      });
+    };
+    reader.onerror = () =>
+      reject(new Error("Impossibile leggere il file selezionato."));
+    reader.readAsDataURL(file);
+  });
+}
+
 export function relativeFromNow(iso) {
   if (!iso) return "";
   const d = new Date(iso).getTime();
@@ -752,6 +804,8 @@ function candidate(partial) {
     educationLevel: "",
     university: "",
     faculty: "",
+    cvFileName: null,
+    cvDataUrl: null,
     ...partial,
   };
 }
@@ -799,6 +853,8 @@ function normalizeState(parsed) {
     if (c.educationLevel == null) c.educationLevel = "";
     if (c.university == null) c.university = "";
     if (c.faculty == null) c.faculty = "";
+    if (c.cvFileName === undefined) c.cvFileName = null;
+    if (c.cvDataUrl === undefined) c.cvDataUrl = null;
   });
   parsed.jobs.forEach((job) => {
     if (job.careersPublished === undefined) {
