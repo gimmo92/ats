@@ -16,7 +16,6 @@ export default defineComponent({
   name: "DashboardPage",
   components: { Avatar },
   setup() {
-    const pipelineCanvas = ref(null);
     const sourceCanvas = ref(null);
     const trendCanvas = ref(null);
     let charts = [];
@@ -33,12 +32,6 @@ export default defineComponent({
       [...state.candidates]
         .sort((a, b) => new Date(b.appliedAt) - new Date(a.appliedAt))
         .slice(0, 5)
-    );
-
-    const pipelineCounts = computed(() =>
-      state.settings.pipelineStages.map((s) =>
-        state.candidates.filter((c) => c.stage === s.id).length
-      )
     );
 
     const sourceData = computed(() => {
@@ -86,36 +79,6 @@ export default defineComponent({
       Chart.defaults.color = fontColor;
       Chart.defaults.font.family =
         "Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
-
-      // Pipeline
-      if (pipelineCanvas.value) {
-        const stages = state.settings.pipelineStages;
-        charts.push(
-          new Chart(pipelineCanvas.value, {
-            type: "bar",
-            data: {
-              labels: stages.map((s) => s.label),
-              datasets: [
-                {
-                  data: pipelineCounts.value,
-                  backgroundColor: stages.map((s) => s.color),
-                  borderRadius: 8,
-                  barThickness: 28,
-                },
-              ],
-            },
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: { legend: { display: false } },
-              scales: {
-                x: { grid: { display: false } },
-                y: { grid: { color: gridColor() }, ticks: { precision: 0 } },
-              },
-            },
-          })
-        );
-      }
 
       // Source
       if (sourceCanvas.value) {
@@ -207,12 +170,7 @@ export default defineComponent({
       () => buildCharts()
     );
     watch(
-      [pipelineCounts, sourceData, last30DaysData],
-      () => buildCharts(),
-      { deep: true }
-    );
-    watch(
-      () => state.settings.pipelineStages,
+      [sourceData, last30DaysData],
       () => buildCharts(),
       { deep: true }
     );
@@ -224,7 +182,6 @@ export default defineComponent({
       upcomingInterviews,
       recentActivity,
       recentCandidates,
-      pipelineCanvas,
       sourceCanvas,
       trendCanvas,
       formatDate,
@@ -338,27 +295,8 @@ export default defineComponent({
       </div>
     </div>
 
-    <div class="row g-3">
-      <div class="col-12 col-xl-7">
-        <div class="card h-100">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <div>
-                <div class="fw-semibold">Pipeline</div>
-                <div class="text-secondary small">Distribuzione per fase</div>
-              </div>
-              <router-link to="/pipeline" class="btn btn-sm btn-light border">
-                Apri pipeline <i class="bi bi-arrow-right ms-1"></i>
-              </router-link>
-            </div>
-            <div style="height: 240px">
-              <canvas ref="pipelineCanvas"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-xl-5">
+    <div class="row g-3 mb-4">
+      <div class="col-12">
         <div class="card h-100">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-3">
