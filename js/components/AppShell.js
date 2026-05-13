@@ -21,9 +21,9 @@ export const AppShell = defineComponent({
   <div class="app-shell">
     <header class="app-header">
       <nav class="app-nav-tabs" aria-label="Navigazione principale">
-        <router-link to="/" class="nav-tab">
-          <i class="bi bi-speedometer2"></i>
-          <span>Dashboard</span>
+        <router-link to="/jobs" class="nav-tab">
+          <i class="bi bi-briefcase"></i>
+          <span>Posizioni</span>
         </router-link>
         <router-link to="/pipeline" class="nav-tab">
           <i class="bi bi-kanban"></i>
@@ -32,10 +32,6 @@ export const AppShell = defineComponent({
         <router-link to="/candidates" class="nav-tab">
           <i class="bi bi-people"></i>
           <span>Candidati</span>
-        </router-link>
-        <router-link to="/jobs" class="nav-tab">
-          <i class="bi bi-briefcase"></i>
-          <span>Posizioni</span>
         </router-link>
         <router-link to="/interviews" class="nav-tab">
           <i class="bi bi-calendar-event"></i>

@@ -84,9 +84,6 @@ export default defineComponent({
         <p class="page-subtitle">{{ filtered.length }} su {{ state.candidates.length }} candidati</p>
       </div>
       <div class="d-flex gap-2 flex-wrap">
-        <router-link to="/linkedin" class="btn btn-outline-linkedin">
-          <i class="bi bi-linkedin me-1"></i> Importa da LinkedIn
-        </router-link>
         <router-link to="/candidates/new" class="btn btn-primary">
           <i class="bi bi-plus-lg me-1"></i> Nuovo candidato
         </router-link>
@@ -166,17 +163,6 @@ export default defineComponent({
                     <div class="fw-semibold">{{ c.name }}</div>
                     <div class="text-secondary small">{{ c.email }}</div>
                   </div>
-                  <a
-                    v-if="c.linkedinUrl"
-                    :href="c.linkedinUrl"
-                    target="_blank"
-                    rel="noopener"
-                    class="ms-1 linkedin-icon"
-                    @click.stop
-                    title="Apri profilo LinkedIn"
-                  >
-                    <i class="bi bi-linkedin"></i>
-                  </a>
                 </div>
               </td>
               <td>

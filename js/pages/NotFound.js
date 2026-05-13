@@ -7,8 +7,8 @@ export default defineComponent({
       <i class="bi bi-compass"></i>
       <h2 class="fw-bold">Pagina non trovata</h2>
       <p>La rotta richiesta non esiste.</p>
-      <router-link to="/" class="btn btn-primary">
-        <i class="bi bi-house me-1"></i> Torna alla dashboard
+      <router-link to="/jobs" class="btn btn-primary">
+        <i class="bi bi-briefcase me-1"></i> Torna alle posizioni
       </router-link>
     </div>
   `,

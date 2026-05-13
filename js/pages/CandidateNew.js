@@ -1,7 +1,6 @@
 import { defineComponent, ref, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import { state, addCandidate } from "../store.js";
-import { importProfileFromUrl } from "../linkedin.js";
 
 const EXT_SESSION_IMPORT_KEY = "__TF_ATS_LI_IMPORT__";
 
@@ -9,9 +8,6 @@ export default defineComponent({
   name: "CandidateNew",
   setup() {
     const router = useRouter();
-    const linkedinUrl = ref("https://www.linkedin.com/in/gianmarcobasso");
-    const importing = ref(false);
-    const importError = ref("");
 
     const model = ref({
       firstName: "Gianmarco",
@@ -160,32 +156,6 @@ export default defineComponent({
       if (pollId != null) clearInterval(pollId);
     });
 
-    async function importFromLinkedIn() {
-      importError.value = "";
-      if (!linkedinUrl.value) {
-        importError.value = "Inserisci un URL LinkedIn valido";
-        return;
-      }
-      try {
-        importing.value = true;
-        const draft = await importProfileFromUrl(linkedinUrl.value);
-        const sp = splitFullName(draft.name);
-        Object.assign(model.value, {
-          firstName: sp.firstName,
-          lastName: sp.lastName,
-          headline: draft.headline,
-          linkedinUrl: draft.linkedinUrl,
-          source: "LinkedIn",
-          notes: "",
-        });
-        model.value = { ...model.value };
-      } catch (e) {
-        importError.value = e.message;
-      } finally {
-        importing.value = false;
-      }
-    }
-
     function save() {
       const first = (model.value.firstName || "").trim();
       const last = (model.value.lastName || "").trim();
@@ -211,12 +181,8 @@ export default defineComponent({
     }
 
     return {
-      linkedinUrl,
-      importing,
-      importError,
       model,
       state,
-      importFromLinkedIn,
       save,
     };
   },
@@ -225,7 +191,7 @@ export default defineComponent({
     <div class="page-header">
       <div>
         <h1 class="page-title">Nuovo candidato</h1>
-        <p class="page-subtitle">Aggiungi manualmente o importa da LinkedIn</p>
+        <p class="page-subtitle">Inserisci i dati del candidato</p>
       </div>
       <router-link to="/candidates" class="btn btn-light border">
         <i class="bi bi-x-lg"></i> Annulla
@@ -233,32 +199,7 @@ export default defineComponent({
     </div>
 
     <div class="row g-3">
-      <div class="col-12 col-xl-4">
-        <div class="card">
-          <div class="card-body">
-            <div class="d-flex align-items-center gap-2 mb-3">
-              <i class="bi bi-linkedin linkedin-icon fs-4"></i>
-              <span class="fw-semibold">Importa da LinkedIn</span>
-            </div>
-            <p class="small text-secondary">
-              Incolla l'URL pubblico di un profilo LinkedIn per pre-compilare il candidato.
-            </p>
-            <p class="small text-secondary border-top pt-2 mt-2 mb-2">
-              <strong>Estensione Chrome Spark:</strong> carica la cartella <code class="small">extension/</code> in
-              chrome://extensions (Modalità sviluppatore → Carica estensione non pacchettizzata). Apri un profilo
-              <code class="small">/in/…</code>, clicca l'icona <strong>Spark — Importa LinkedIn</strong> e poi «Leggi profilo e apri nuovo candidato (Spark)».
-            </p>
-            <input v-model="linkedinUrl" class="form-control mb-2" placeholder="https://www.linkedin.com/in/nome-e-cognome/" />
-            <div v-if="importError" class="alert alert-danger small py-2">{{ importError }}</div>
-            <button class="btn btn-linkedin w-100" :disabled="importing" @click="importFromLinkedIn">
-              <span v-if="importing"><span class="spinner-border spinner-border-sm me-1"></span> Importando...</span>
-              <span v-else><i class="bi bi-cloud-arrow-down me-1"></i> Importa profilo</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-xl-8">
+      <div class="col-12">
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">Dati candidato</h5>

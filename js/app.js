@@ -4,7 +4,6 @@ import { createRouter, createWebHashHistory, RouterView } from "vue-router";
 import { AppShell } from "./components/AppShell.js";
 import { CareerShell } from "./components/CareerShell.js";
 
-import Dashboard from "./pages/Dashboard.js";
 import Candidates from "./pages/Candidates.js";
 import CandidateDetail from "./pages/CandidateDetail.js";
 import CandidateNew from "./pages/CandidateNew.js";
@@ -27,7 +26,7 @@ const router = createRouter({
       path: "/",
       component: AppShell,
       children: [
-        { path: "", name: "dashboard", component: Dashboard },
+        { path: "", redirect: "/jobs" },
         { path: "pipeline", name: "pipeline", component: Pipeline },
         { path: "candidates", name: "candidates", component: Candidates },
         {
