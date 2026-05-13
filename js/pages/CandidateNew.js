@@ -29,9 +29,20 @@ export default defineComponent({
       education: [],
     });
 
+    function isJunkSkillText(s) {
+      const t = String(s || "").trim();
+      if (!t || t.length > 80) return true;
+      if (/conferme?\s+di\s+competenza/i.test(t)) return true;
+      if (/\d+\s*(conferme?|endorsement|endorsements)\b/i.test(t)) return true;
+      if (/^skill(s)?$/i.test(t)) return true;
+      return false;
+    }
+
     function applyExtensionImport(payload) {
       if (!payload || typeof payload !== "object") return;
-      const skillsArr = Array.isArray(payload.skills) ? payload.skills : [];
+      const skillsArr = Array.isArray(payload.skills)
+        ? payload.skills.filter((x) => !isJunkSkillText(x))
+        : [];
       const skillsText = skillsArr.filter(Boolean).join(", ");
       const headline = (payload.headline || "").trim();
       const currentRole = (payload.currentRole || "").trim();

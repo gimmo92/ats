@@ -1,5 +1,5 @@
 /**
- * Estrazione best-effort dal DOM LinkedIn + meta tag / JSON-LD (UI cambia spesso).
+ * Estrazione best-effort dal DOM LinkedIn + meta + title + JSON negli script (UI cambia spesso).
  */
 function text(el) {
   return (el?.innerText || el?.textContent || "").replace(/\s+/g, " ").trim();
@@ -12,12 +12,167 @@ function metaContent(prop) {
   return (el?.getAttribute("content") || "").replace(/\s+/g, " ").trim();
 }
 
+/** Decodifica segmento catturato da JSON "...." */
+function unquoteJson(s) {
+  if (!s) return "";
+  try {
+    return JSON.parse(`["${s
+      .replace(/\\/g, "\\\\")
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, "\\n")
+      .replace(/\r/g, "\\r")
+      .replace(/\t/g, "\\t")}"]`)[0];
+  } catch {
+    return String(s)
+      .replace(/\\"/g, '"')
+      .replace(/\\n/g, " ")
+      .replace(/\\u([0-9a-fA-F]{4})/gi, (_, h) =>
+        String.fromCharCode(parseInt(h, 16))
+      );
+  }
+}
+
 function parseOgTitle(raw) {
   if (!raw) return { name: "", headline: "" };
   const core = raw.replace(/\s*\|\s*LinkedIn\s*$/i, "").trim();
   const m = core.match(/^(.+?)\s+[\-–—]\s+(.+)$/);
   if (m) return { name: m[1].trim(), headline: m[2].trim() };
   return { name: "", headline: core };
+}
+
+function parseDocumentTitle() {
+  const raw = (document.title || "").replace(/\s*\|\s*LinkedIn\s*$/i, "").trim();
+  if (!raw) return { name: "", headline: "" };
+  const m = raw.match(/^(.+?)\s+[\-–—]\s+(.+)$/);
+  if (m) return { name: m[1].trim(), headline: m[2].trim() };
+  return { name: raw, headline: "" };
+}
+
+/**
+ * LinkedIn incolla molto JSON negli script inline: headline, location, skill, ecc.
+ */
+function extractFromInlineScripts() {
+  let headline = "";
+  let location = "";
+  let geo = "";
+  let occupation = "";
+  const skills = [];
+  const seenSkill = new Set();
+
+  const scripts = [];
+  document.querySelectorAll("script:not([src])").forEach((script) => {
+    const t = script.textContent || "";
+    if (t.length < 400) return;
+    if (
+      !/headline|localizedHeadline|geoLocation|locationName|occupation|skill|endorsementCount|standardizedName/i.test(
+        t
+      )
+    )
+      return;
+    scripts.push(t);
+  });
+
+  const blob = scripts.join("\n").slice(0, 4_000_000);
+
+  const pickLongest = (prev, next) => {
+    const a = (next || "").trim();
+    if (!a || a.length < 3) return prev;
+    if (!prev || a.length > prev.length) return a;
+    return prev;
+  };
+
+  const headlinePatterns = [
+    /"localizedHeadline"\s*:\s*"((?:[^"\\]|\\.)*)"/g,
+    /"headline"\s*:\s*"((?:[^"\\]|\\.)*)"/g,
+    /"primaryLocalizedHeadline"[^}]*?"text"\s*:\s*"((?:[^"\\]|\\.)*)"/g,
+    /"localizedHeadline"\s*:\s*\{\s*"text"\s*:\s*"((?:[^"\\]|\\.)*)"/g,
+  ];
+  for (const re of headlinePatterns) {
+    let m;
+    re.lastIndex = 0;
+    while ((m = re.exec(blob)) !== null) {
+      const v = unquoteJson(m[1]).trim();
+      if (v.length >= 4 && v.length < 500 && !/^[\[{]/.test(v))
+        headline = pickLongest(headline, v);
+    }
+  }
+
+  const locPatterns = [
+    /"locationName"\s*:\s*"((?:[^"\\]|\\.)*)"/g,
+    /"geoLocationName"\s*:\s*"((?:[^"\\]|\\.)*)"/g,
+    /"defaultLocalizedWorkplace"\s*:\s*"((?:[^"\\]|\\.)*)"/g,
+  ];
+  for (const re of locPatterns) {
+    let m;
+    re.lastIndex = 0;
+    while ((m = re.exec(blob)) !== null) {
+      const v = unquoteJson(m[1]).trim();
+      if (v.length >= 2 && v.length < 180) location = pickLongest(location, v);
+    }
+  }
+
+  const geoPatterns = [/"geoLocationName"\s*:\s*"((?:[^"\\]|\\.)*)"/g];
+  for (const re of geoPatterns) {
+    let m;
+    re.lastIndex = 0;
+    while ((m = re.exec(blob)) !== null) {
+      const v = unquoteJson(m[1]).trim();
+      if (v.length >= 2 && v.length < 180) geo = pickLongest(geo, v);
+    }
+  }
+
+  const occPatterns = [
+    /"localizedOccupation"\s*:\s*"((?:[^"\\]|\\.)*)"/g,
+    /"occupation"\s*:\s*"((?:[^"\\]|\\.)*)"/g,
+  ];
+  for (const re of occPatterns) {
+    let m;
+    re.lastIndex = 0;
+    while ((m = re.exec(blob)) !== null) {
+      const v = unquoteJson(m[1]).trim();
+      if (v.length >= 2 && v.length < 200) occupation = pickLongest(occupation, v);
+    }
+  }
+
+  const skillPatterns = [
+    /"endorsementCount"\s*:\s*\d+\s*,\s*"name"\s*:\s*"((?:[^"\\]|\\.){2,100})"/g,
+    /"name"\s*:\s*"((?:[^"\\]|\\.){2,100})"\s*,\s*"endorsementCount"\s*:\s*\d+/g,
+    /"standardizedName"\s*:\s*"((?:[^"\\]|\\.){2,100})"/g,
+    /"skillName"\s*:\s*"((?:[^"\\]|\\.){2,100})"/g,
+  ];
+  for (const re of skillPatterns) {
+    let m;
+    re.lastIndex = 0;
+    while ((m = re.exec(blob)) !== null) {
+      const v = unquoteJson(m[1]).trim();
+      if (isJunkSkill(v)) continue;
+      const low = v.toLowerCase();
+      if (seenSkill.has(low)) continue;
+      seenSkill.add(low);
+      skills.push(v);
+      if (skills.length >= 45) break;
+    }
+  }
+
+  return {
+    headline,
+    location: location || geo,
+    occupation,
+    skills,
+  };
+}
+
+function isJunkSkill(s) {
+  if (!s || s.length < 2 || s.length > 80) return true;
+  if (/^[\d\s]+$/.test(s)) return true;
+  if (/https?:\/\//i.test(s)) return true;
+  if (/\$type|urn:li:/i.test(s)) return true;
+  if (/conferme?\s+di\s+competenza/i.test(s)) return true;
+  if (/\d+\s*(conferme?|endorsement|endorsements)\b/i.test(s)) return true;
+  if (/^(show all|mostra|endorse|skill|competenze)\b/i.test(s) && s.length < 36)
+    return true;
+  if (/^view\b/i.test(s)) return true;
+  return false;
 }
 
 function extractJsonLdPerson() {
@@ -55,7 +210,8 @@ function extractJsonLdPerson() {
       const ks = node.knowsAbout;
       if (Array.isArray(ks)) {
         ks.forEach((k) => {
-          if (typeof k === "string" && k.length < 80) skills.push(k.trim());
+          if (typeof k === "string" && k.length < 80 && !isJunkSkill(k))
+            skills.push(k.trim());
         });
       }
     });
@@ -214,19 +370,19 @@ function collectSkills(main) {
   const seen = new Set();
   const add = (raw) => {
     const s = raw.replace(/\s+/g, " ").trim();
-    if (!s || s.length < 2 || s.length > 80) return;
+    if (isJunkSkill(s)) return;
     const low = s.toLowerCase();
     if (seen.has(low)) return;
-    if (/^(show all|mostra|endorse|endorsement|skill)\b/i.test(s) && s.length < 28)
-      return;
     seen.add(low);
     skills.push(s);
   };
 
   const roots = [main, document.body].filter(Boolean);
   for (const root of roots) {
-    root.querySelectorAll('a[href*="/skills/"], a[href*="skill_"]').forEach((a) => {
+    root.querySelectorAll('a[href*="/skills/"]').forEach((a) => {
       if (a.closest(".global-nav")) return;
+      if (/endorsement|skill_assessment|details\/skills\/reports/i.test(a.href))
+        return;
       const inner =
         a.querySelector("span[aria-hidden='true']") ||
         a.querySelector(".hoverable-link-text span") ||
@@ -249,13 +405,27 @@ function collectSkills(main) {
     skillSection
       .querySelectorAll("span[aria-hidden='true'], .hoverable-link-text span")
       .forEach((el) => {
-        const t = text(el);
-        if (t && t.length < 80) add(t);
+        add(text(el));
       });
   }
 
   if (skills.length > 45) skills.length = 45;
   return skills;
+}
+
+function mergeSkillsUnique(base, extra) {
+  const seen = new Set();
+  const out = [];
+  [...base, ...extra].forEach((s) => {
+    const t = String(s || "").trim();
+    if (isJunkSkill(t)) return;
+    const low = t.toLowerCase();
+    if (seen.has(low)) return;
+    seen.add(low);
+    out.push(t);
+  });
+  if (out.length > 45) out.length = 45;
+  return out;
 }
 
 function locationHintFromOgDescription(desc, headline) {
@@ -292,7 +462,9 @@ function scrapeProfile() {
   const ogTitle = metaContent("og:title") || metaContent("twitter:title");
   const ogDesc = metaContent("og:description") || metaContent("description");
   const ogParsed = parseOgTitle(ogTitle);
+  const titleParsed = parseDocumentTitle();
   const ld = extractJsonLdPerson();
+  const embedded = extractFromInlineScripts();
 
   let name = "";
   const h1 = main.querySelector(
@@ -301,19 +473,26 @@ function scrapeProfile() {
   if (h1) name = text(h1);
 
   if (!name && ogParsed.name) name = ogParsed.name;
+  if (!name && titleParsed.name) name = titleParsed.name;
 
   let headline =
+    embedded.headline ||
     findHeadlineFromDom(main, name) ||
     ogParsed.headline ||
+    titleParsed.headline ||
     ld.description ||
     "";
   headline = headline.trim();
 
+  if (headline === name) headline = "";
+
   if (!headline && ogDesc && ogDesc.length < 400) {
     headline = ogDesc.split(/\n|\. /)[0]?.trim() || "";
   }
+  if (headline === name) headline = "";
 
   let location =
+    embedded.location ||
     findLocationFromDom(main, name, headline) ||
     ld.addressLocality ||
     locationHintFromOgDescription(ogDesc, headline) ||
@@ -321,7 +500,10 @@ function scrapeProfile() {
 
   const expSection = findExperienceSection();
   let currentRole =
-    extractCurrentRoleFromExperience(expSection) || ld.jobTitle || "";
+    extractCurrentRoleFromExperience(expSection) ||
+    embedded.occupation ||
+    ld.jobTitle ||
+    "";
   currentRole = currentRole.trim();
 
   const role =
@@ -330,21 +512,10 @@ function scrapeProfile() {
     headline ||
     "";
 
-  let skills = collectSkills(main);
-  if (ld.skills?.length) {
-    const merged = [...ld.skills, ...skills];
-    skills = [];
-    const seen = new Set();
-    merged.forEach((s) => {
-      const t = String(s).trim();
-      if (!t || t.length > 80) return;
-      const low = t.toLowerCase();
-      if (seen.has(low)) return;
-      seen.add(low);
-      skills.push(t);
-    });
-    if (skills.length > 45) skills.length = 45;
-  }
+  let skills = mergeSkillsUnique(
+    mergeSkillsUnique(embedded.skills, ld.skills || []),
+    collectSkills(main)
+  );
 
   const experience = [];
   const expItems =
