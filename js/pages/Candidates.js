@@ -52,8 +52,6 @@ export default defineComponent({
         );
       } else if (sortBy.value === "name") {
         list = list.sort((a, b) => a.name.localeCompare(b.name));
-      } else if (sortBy.value === "rating") {
-        list = list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
       }
       return list;
     });
@@ -121,7 +119,6 @@ export default defineComponent({
             <select v-model="sortBy" class="form-select">
               <option value="recent">Recenti</option>
               <option value="name">Nome</option>
-              <option value="rating">Rating</option>
             </select>
           </div>
         </div>
@@ -145,7 +142,6 @@ export default defineComponent({
               <th>Ruolo / Posizione</th>
               <th>Fase</th>
               <th>Sorgente</th>
-              <th>Rating</th>
               <th>Skill</th>
               <th class="text-end">Applicato</th>
             </tr>
@@ -173,12 +169,6 @@ export default defineComponent({
                 <span class="badge stage-badge stage-badge-colored" :style="stageBadgeStyle(c.stage)">{{ stageLabel(c.stage) }}</span>
               </td>
               <td class="small">{{ c.source || '—' }}</td>
-              <td>
-                <span v-if="c.rating">
-                  <i v-for="n in 5" :key="n" :class="['bi', n <= c.rating ? 'bi-star-fill text-warning' : 'bi-star text-secondary']"></i>
-                </span>
-                <span v-else class="text-secondary small">—</span>
-              </td>
               <td>
                 <span v-for="s in (c.skills || []).slice(0,3)" :key="s" class="skill-chip">{{ s }}</span>
                 <span v-if="(c.skills || []).length > 3" class="skill-chip">+{{ c.skills.length - 3 }}</span>
