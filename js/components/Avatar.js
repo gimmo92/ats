@@ -1,5 +1,4 @@
 import { defineComponent, computed } from "vue";
-import { avatarColor, initials } from "../store.js";
 
 export const Avatar = defineComponent({
   name: "Avatar",
@@ -9,17 +8,20 @@ export const Avatar = defineComponent({
     size: { type: String, default: "" },
   },
   setup(props) {
+    const hasPhoto = computed(() => !!props.src);
     const cls = computed(() => {
       const parts = ["avatar"];
       if (props.size) parts.push(props.size);
-      if (!props.src) parts.push(avatarColor(props.name));
+      parts.push(hasPhoto.value ? "avatar-photo" : "avatar-placeholder");
       return parts.join(" ");
     });
     const style = computed(() =>
-      props.src ? { backgroundImage: `url(${props.src})` } : {}
+      hasPhoto.value ? { backgroundImage: `url(${props.src})` } : {}
     );
-    const text = computed(() => (props.src ? "" : initials(props.name)));
-    return { cls, style, text };
+    return { cls, style, hasPhoto };
   },
-  template: `<div :class="cls" :style="style" :title="name">{{ text }}</div>`,
+  template: `
+  <div :class="cls" :style="style" :title="name">
+    <i v-if="!hasPhoto" class="bi bi-person-fill" aria-hidden="true"></i>
+  </div>`,
 });

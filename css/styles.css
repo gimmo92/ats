@@ -259,46 +259,51 @@ body {
   }
 }
 
-/* ====== Avatar ====== */
+/* ====== Avatar (foto opzionale; senza foto: icona neutra, niente iniziali) ====== */
 .avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: white;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
-  font-size: 0.9rem;
   flex-shrink: 0;
-  text-transform: uppercase;
   background-size: cover;
   background-position: center;
+}
+.avatar-photo {
+  background-color: var(--bs-secondary-bg);
+}
+.avatar-placeholder {
+  background: var(--bs-secondary-bg);
+  border: 1px solid var(--bs-border-color);
+  color: var(--bs-secondary-color);
+}
+.avatar-placeholder .bi {
+  font-size: 1.05rem;
+  line-height: 1;
 }
 .avatar.sm {
   width: 28px;
   height: 28px;
-  font-size: 0.72rem;
+}
+.avatar.sm.avatar-placeholder .bi {
+  font-size: 0.82rem;
 }
 .avatar.lg {
   width: 64px;
   height: 64px;
-  font-size: 1.4rem;
+}
+.avatar.lg.avatar-placeholder .bi {
+  font-size: 1.45rem;
 }
 .avatar.xl {
   width: 96px;
   height: 96px;
-  font-size: 2rem;
 }
-
-/* Generatori palette deterministica per avatar */
-.avatar.c1 { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
-.avatar.c2 { background: linear-gradient(135deg, #06b6d4, #0ea5e9); }
-.avatar.c3 { background: linear-gradient(135deg, #f59e0b, #ef4444); }
-.avatar.c4 { background: linear-gradient(135deg, #10b981, #059669); }
-.avatar.c5 { background: linear-gradient(135deg, #ec4899, #f43f5e); }
-.avatar.c6 { background: linear-gradient(135deg, #8b5cf6, #d946ef); }
+.avatar.xl.avatar-placeholder .bi {
+  font-size: 2.1rem;
+}
 
 /* ====== LinkedIn brand ====== */
 .btn-linkedin {

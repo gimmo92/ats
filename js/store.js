@@ -165,22 +165,6 @@ export function relativeFromNow(iso) {
   return future ? `tra ${value}${unit}` : `${value}${unit} fa`;
 }
 
-export function avatarColor(seed = "") {
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) | 0;
-  return `c${(Math.abs(h) % 6) + 1}`;
-}
-
-export function initials(name = "") {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((p) => p[0])
-    .join("")
-    .toUpperCase();
-}
-
 /* ============================================================
    Seed data realistico
    ============================================================ */
