@@ -32,7 +32,7 @@ export default defineComponent({
     function applyExtensionImport(payload) {
       if (!payload || typeof payload !== "object") return;
       const skillsArr = Array.isArray(payload.skills) ? payload.skills : [];
-      const skillsText = skillsArr.join(", ");
+      const skillsText = skillsArr.filter(Boolean).join(", ");
       const headline = (payload.headline || "").trim();
       const currentRole = (payload.currentRole || "").trim();
       const roleFromPayload = (payload.role || "").trim();
@@ -40,24 +40,25 @@ export default defineComponent({
         currentRole ||
         roleFromPayload ||
         (headline ? headline.split(/\s+at\s+|\s+@\s+|\s+·\s+/i)[0].trim() : "");
-      Object.assign(model.value, {
-        name: payload.name || "",
-        email: payload.email || "",
-        phone: payload.phone || "",
-        role,
-        location: (payload.location || "").trim(),
-        headline,
-        linkedinUrl: payload.linkedinUrl || "",
+      const patch = {
+        name: (payload.name || "").trim() || model.value.name,
+        email: (payload.email || "").trim() || model.value.email,
+        phone: (payload.phone || "").trim() || model.value.phone,
+        role: role || model.value.role,
+        location: (payload.location || "").trim() || model.value.location,
+        headline: headline || model.value.headline,
+        linkedinUrl: (payload.linkedinUrl || "").trim() || model.value.linkedinUrl,
         source: payload.source || "LinkedIn (estensione)",
-        notes: payload.notes || "",
-        _skillsText: skillsText,
+        notes: (payload.notes || "").trim() || model.value.notes,
+        _skillsText: skillsText || model.value._skillsText,
         experience: Array.isArray(payload.experience)
           ? payload.experience
-          : [],
+          : model.value.experience,
         education: Array.isArray(payload.education)
           ? payload.education
-          : [],
-      });
+          : model.value.education,
+      };
+      Object.assign(model.value, patch);
     }
 
     function tryConsumePendingExtensionImport() {
@@ -75,8 +76,8 @@ export default defineComponent({
       tryConsumePendingExtensionImport();
       window.addEventListener("talentflow-extension-import", onExtensionImport);
       nextTick(() => tryConsumePendingExtensionImport());
-      setTimeout(() => tryConsumePendingExtensionImport(), 500);
-      setTimeout(() => tryConsumePendingExtensionImport(), 1500);
+      const delays = [300, 600, 1200, 2200, 4000];
+      delays.forEach((ms) => setTimeout(() => tryConsumePendingExtensionImport(), ms));
     });
     onBeforeUnmount(() => {
       window.removeEventListener("talentflow-extension-import", onExtensionImport);

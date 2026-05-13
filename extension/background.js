@@ -41,6 +41,7 @@ function injectProfileIntoTab(tabId, profile) {
       setTimeout(deliver, 400);
       setTimeout(deliver, 1100);
       setTimeout(deliver, 2200);
+      setTimeout(deliver, 3800);
     },
   });
 }
