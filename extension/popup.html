@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>TalentFlow — Import LinkedIn</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      width: 300px;
+      margin: 0;
+      padding: 14px;
+      font-size: 13px;
+    }
+    h1 {
+      font-size: 14px;
+      margin: 0 0 8px;
+    }
+    p {
+      color: #555;
+      margin: 0 0 12px;
+      line-height: 1.4;
+    }
+    .warn {
+      font-size: 11px;
+      color: #92400e;
+      background: #fffbeb;
+      border: 1px solid #fcd34d;
+      padding: 8px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+    .warn code {
+      font-size: 10px;
+    }
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(310deg, #2152ff 0%, #21d4fd 100%);
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    #status {
+      margin-top: 10px;
+      font-size: 12px;
+      min-height: 2.5em;
+    }
+    .err {
+      color: #b91c1c;
+    }
+    .ok {
+      color: #047857;
+    }
+  </style>
+</head>
+<body>
+  <h1>Import in TalentFlow ATS</h1>
+  <p class="warn">
+    Se vedi errori CSP su <code>content-ats.js</code>: in
+    <code>chrome://extensions</code> <strong>rimuovi</strong> questa estensione e carica di nuovo la cartella
+    <code>extension/</code> (versione senza content-ats).
+  </p>
+  <p>Apri il <strong>profilo LinkedIn</strong> (/in/…), poi clicca il pulsante qui sotto.</p>
+  <label for="origin">URL ATS (con porta)</label>
+  <input
+    id="origin"
+    type="text"
+    value="http://localhost:5500"
+    placeholder="http://localhost:5500"
+  />
+  <button id="go" type="button">Leggi profilo e apri nuovo candidato</button>
+  <div id="status"></div>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import { state, addCandidate } from "../store.js";
 import { importProfileFromUrl } from "../linkedin.js";
@@ -25,6 +25,55 @@ export default defineComponent({
       rating: 0,
       _skillsText: "",
       notes: "",
+      experience: [],
+      education: [],
+    });
+
+    function applyExtensionImport(payload) {
+      if (!payload || typeof payload !== "object") return;
+      const skillsText = Array.isArray(payload.skills)
+        ? payload.skills.join(", ")
+        : "";
+      Object.assign(model.value, {
+        name: payload.name || "",
+        email: payload.email || "",
+        phone: payload.phone || "",
+        role: payload.role || payload.headline || "",
+        location: payload.location || "",
+        headline: payload.headline || "",
+        linkedinUrl: payload.linkedinUrl || "",
+        source: payload.source || "LinkedIn (estensione)",
+        notes: payload.notes || "",
+        _skillsText: skillsText,
+        experience: Array.isArray(payload.experience)
+          ? payload.experience
+          : [],
+        education: Array.isArray(payload.education)
+          ? payload.education
+          : [],
+      });
+    }
+
+    function tryConsumePendingExtensionImport() {
+      const w = typeof window !== "undefined" ? window : null;
+      if (!w?.__TALENTFLOW_EXTENSION_IMPORT__) return;
+      applyExtensionImport(w.__TALENTFLOW_EXTENSION_IMPORT__);
+      delete w.__TALENTFLOW_EXTENSION_IMPORT__;
+    }
+
+    const onExtensionImport = (e) => {
+      if (e?.detail) applyExtensionImport(e.detail);
+    };
+
+    onMounted(() => {
+      tryConsumePendingExtensionImport();
+      window.addEventListener("talentflow-extension-import", onExtensionImport);
+      nextTick(() => tryConsumePendingExtensionImport());
+      setTimeout(() => tryConsumePendingExtensionImport(), 500);
+      setTimeout(() => tryConsumePendingExtensionImport(), 1500);
+    });
+    onBeforeUnmount(() => {
+      window.removeEventListener("talentflow-extension-import", onExtensionImport);
     });
 
     async function importFromLinkedIn() {
@@ -59,9 +108,12 @@ export default defineComponent({
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean);
+      const { _skillsText: _unused, ...rest } = model.value;
       const c = addCandidate({
-        ...model.value,
+        ...rest,
         skills,
+        experience: model.value.experience || [],
+        education: model.value.education || [],
       });
       router.replace({ name: "candidate-detail", params: { id: c.id } });
     }
@@ -98,6 +150,11 @@ export default defineComponent({
             </div>
             <p class="small text-secondary">
               Incolla l'URL pubblico di un profilo LinkedIn per pre-compilare il candidato.
+            </p>
+            <p class="small text-secondary border-top pt-2 mt-2 mb-2">
+              <strong>Estensione Chrome:</strong> carica la cartella <code class="small">extension/</code> in
+              chrome://extensions (Modalità sviluppatore → Carica estensione non pacchettizzata). Apri un profilo
+              <code class="small">/in/…</code>, clicca l'icona dell'estensione e poi «Leggi profilo e apri nuovo candidato».
             </p>
             <input v-model="linkedinUrl" class="form-control mb-2" placeholder="https://www.linkedin.com/in/nome-cognome/" />
             <div v-if="importError" class="alert alert-danger small py-2">{{ importError }}</div>

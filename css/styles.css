@@ -4,7 +4,6 @@
 
 :root {
   --tf-app-bg: #f8f9fa;
-  --tf-topbar-height: 64px;
   --tf-linkedin: #0a66c2;
   --tf-linkedin-hover: #004182;
   --tf-radius: 12px;
@@ -142,65 +141,9 @@ body {
   font-size: 1rem;
 }
 
-.app-topbar {
-  min-height: var(--tf-topbar-height);
-  display: flex;
-  align-items: center;
-  padding: 0.75rem 1.5rem 1rem;
-  gap: 1rem;
-}
-
 .app-content {
   padding: 1.5rem;
   flex: 1;
-}
-
-/* ====== Topbar ====== */
-.global-search {
-  flex: 1;
-  max-width: 520px;
-  margin-right: auto;
-  position: relative;
-}
-.global-search .form-control {
-  padding-left: 2.5rem;
-  background: var(--bs-tertiary-bg);
-  border-color: transparent;
-}
-.global-search .form-control:focus {
-  background: var(--bs-body-bg);
-}
-.global-search .bi-search {
-  position: absolute;
-  left: 0.875rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--bs-secondary-color);
-}
-.search-results {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  right: 0;
-  background: var(--bs-body-bg);
-  border: 1px solid var(--bs-border-color);
-  border-radius: var(--tf-radius);
-  box-shadow: var(--tf-shadow-lg);
-  z-index: 1050;
-  max-height: 60vh;
-  overflow-y: auto;
-}
-.search-result-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.65rem 0.85rem;
-  cursor: pointer;
-  text-decoration: none;
-  color: var(--bs-body-color);
-}
-.search-result-item:hover {
-  background: var(--bs-tertiary-bg);
 }
 
 /* ====== Card / Generale ====== */
@@ -555,23 +498,6 @@ body {
   .app-nav-tabs {
     padding-left: 1rem;
     padding-right: 1rem;
-  }
-
-  .app-topbar {
-    padding-left: 1rem;
-    padding-right: 1rem;
-    flex-wrap: wrap;
-  }
-
-  .global-search {
-    order: 2;
-    flex: 1 1 100%;
-    max-width: none;
-    margin-right: 0;
-  }
-
-  .dropdown {
-    margin-left: auto;
   }
 }
 
