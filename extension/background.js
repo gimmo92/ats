@@ -31,7 +31,7 @@ function injectProfileIntoTab(tabId, profile) {
             JSON.stringify({ v: 1, at: Date.now(), payload })
           );
         } catch (e) {
-          console.warn("TalentFlow sessionStorage import", e);
+          console.warn("Spark sessionStorage import", e);
         }
         try {
           window.__TALENTFLOW_EXTENSION_IMPORT__ = payload;
@@ -39,7 +39,7 @@ function injectProfileIntoTab(tabId, profile) {
             new CustomEvent("talentflow-extension-import", { detail: payload })
           );
         } catch (e) {
-          console.warn("TalentFlow import deliver", e);
+          console.warn("Spark import deliver", e);
         }
       };
       deliver();
@@ -66,7 +66,7 @@ function tryDeliverImportToTab(tabId) {
 
     injectProfileIntoTab(tabId, entry.profile)
       .then(() => chrome.storage.local.remove(STORAGE_KEY))
-      .catch((e) => console.warn("TalentFlow injectProfileIntoTab", e));
+      .catch((e) => console.warn("Spark injectProfileIntoTab", e));
   });
 }
 

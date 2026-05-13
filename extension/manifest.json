@@ -1,11 +1,23 @@
 {
   "manifest_version": 3,
-  "name": "TalentFlow ATS — Import LinkedIn",
-  "version": "1.0.8",
-  "description": "Estrae dati da un profilo LinkedIn e li invia a TalentFlow ATS (localhost).",
+  "name": "Spark — Importa LinkedIn",
+  "version": "1.0.10",
+  "description": "Legge il profilo LinkedIn aperto e invia i dati all'ATS Spark (localhost o URL personalizzato).",
+  "icons": {
+    "16": "icons/spark-extension.png",
+    "32": "icons/spark-extension.png",
+    "48": "icons/spark-extension.png",
+    "128": "icons/spark-extension.png"
+  },
   "action": {
-    "default_title": "Importa profilo in TalentFlow",
-    "default_popup": "popup.html"
+    "default_title": "Spark · Importa LinkedIn",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/spark-extension.png",
+      "32": "icons/spark-extension.png",
+      "48": "icons/spark-extension.png",
+      "128": "icons/spark-extension.png"
+    }
   },
   "permissions": ["storage", "tabs", "scripting"],
   "host_permissions": [

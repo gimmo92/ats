@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <title>TalentFlow — Import LinkedIn</title>
+  <title>Spark — Importa LinkedIn</title>
   <style>
     body {
       font-family: system-ui, sans-serif;
@@ -73,11 +73,11 @@
   </style>
 </head>
 <body>
-  <h1>Import in TalentFlow ATS</h1>
+  <h1>Spark · Importa LinkedIn</h1>
   <p class="warn">
     Dopo un aggiornamento dell’estensione: <strong>ricarica</strong> il tab LinkedIn (F5), poi usa di nuovo il pulsante. La riga verde sotto riassume cosa è stato letto dal profilo.
   </p>
-  <p>Apri il <strong>profilo LinkedIn</strong> (/in/…), poi clicca il pulsante qui sotto. Vengono letti nome, headline, località, ruolo dalla prima esperienza (o in corso), skill collegate al profilo ed esperienza/formazione.</p>
+  <p>Apri il <strong>profilo LinkedIn</strong> (/in/…), poi clicca il pulsante. I dati vengono inviati alla pagina <strong>Nuovo candidato</strong> dell’ATS.</p>
   <label for="origin">URL ATS (con porta)</label>
   <input
     id="origin"
@@ -85,7 +85,7 @@
     value="http://localhost:5500"
     placeholder="http://localhost:5500"
   />
-  <button id="go" type="button">Leggi profilo e apri nuovo candidato</button>
+  <button id="go" type="button">Leggi profilo e apri nuovo candidato (Spark)</button>
   <div id="status"></div>
   <script src="popup.js"></script>
 </body>

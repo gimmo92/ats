@@ -118,7 +118,7 @@ document.getElementById("go").addEventListener("click", async () => {
     });
 
     setStatus(
-      `OK. ${summarizePayload(res.payload)} — tab ATS aperto; se i campi restano vuoti, ricarica la pagina Nuovo candidato.`,
+      `OK. ${summarizePayload(res.payload)} — tab ATS aperto (Spark). Se i campi restano vuoti, ricarica Nuovo candidato.`,
       "ok"
     );
   } catch (e) {

@@ -580,8 +580,8 @@ function scrapeProfile() {
       skills,
       experience,
       education,
-      source: "LinkedIn (estensione)",
-      notes: `Importato dall'estensione TalentFlow il ${new Date().toLocaleString("it-IT")}. Verificare i dati e il consenso del candidato.`,
+      source: "LinkedIn (Spark)",
+      notes: "",
     },
   };
 }

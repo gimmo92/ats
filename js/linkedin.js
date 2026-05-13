@@ -158,8 +158,7 @@ export async function importProfileFromUrl(url, hint = {}) {
     experience: hint.experience || [],
     education: hint.education || [],
     source: "LinkedIn",
-    notes:
-      "Profilo importato da LinkedIn. Completare i dati con il consenso del candidato.",
+    notes: "",
   };
 }
 

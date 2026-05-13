@@ -89,8 +89,8 @@ export default defineComponent({
         location: (payload.location || "").trim() || model.value.location,
         headline: headline || model.value.headline,
         linkedinUrl: (payload.linkedinUrl || "").trim() || model.value.linkedinUrl,
-        source: payload.source || "LinkedIn (estensione)",
-        notes: (payload.notes || "").trim() || model.value.notes,
+        source: payload.source || "LinkedIn (Spark)",
+        notes: (payload.notes != null ? String(payload.notes) : "").trim(),
         _skillsText: skillsText || model.value._skillsText,
         experience: Array.isArray(payload.experience)
           ? payload.experience
@@ -176,7 +176,7 @@ export default defineComponent({
           headline: draft.headline,
           linkedinUrl: draft.linkedinUrl,
           source: "LinkedIn",
-          notes: draft.notes,
+          notes: "",
         });
         model.value = { ...model.value };
       } catch (e) {
@@ -244,9 +244,9 @@ export default defineComponent({
               Incolla l'URL pubblico di un profilo LinkedIn per pre-compilare il candidato.
             </p>
             <p class="small text-secondary border-top pt-2 mt-2 mb-2">
-              <strong>Estensione Chrome:</strong> carica la cartella <code class="small">extension/</code> in
+              <strong>Estensione Chrome Spark:</strong> carica la cartella <code class="small">extension/</code> in
               chrome://extensions (Modalità sviluppatore → Carica estensione non pacchettizzata). Apri un profilo
-              <code class="small">/in/…</code>, clicca l'icona dell'estensione e poi «Leggi profilo e apri nuovo candidato».
+              <code class="small">/in/…</code>, clicca l'icona <strong>Spark — Importa LinkedIn</strong> e poi «Leggi profilo e apri nuovo candidato (Spark)».
             </p>
             <input v-model="linkedinUrl" class="form-control mb-2" placeholder="https://www.linkedin.com/in/nome-e-cognome/" />
             <div v-if="importError" class="alert alert-danger small py-2">{{ importError }}</div>
