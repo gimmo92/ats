@@ -1,4 +1,4 @@
-import { state, logActivity } from "./store.js";
+import { state, logActivity, careerPageUrl } from "./store.js";
 
 /* ============================================================
    Modulo integrazione LinkedIn
@@ -278,16 +278,14 @@ export async function postJobToLinkedIn(job) {
 }
 
 /**
- * Genera lo "share URL" per pubblicare manualmente un job sul feed.
- * Funziona in tutti i casi (non richiede OAuth) ed è la fallback
- * più affidabile.
+ * Genera l'URL di condivisione LinkedIn (composer / share) per la posizione.
+ * Usa la pagina pubblica carriere (o redirect configurato) come URL condiviso.
  */
-export function buildShareUrl(job, baseUrl = window.location.origin) {
-  const text = encodeURIComponent(
-    `${job.title} @ ${state.settings.company.name} (${job.location} · ${job.workMode})`
-  );
-  const url = encodeURIComponent(`${baseUrl}/jobs/${job.id}`);
-  return `https://www.linkedin.com/sharing/share-offsite/?url=${url}&summary=${text}`;
+export function buildShareUrl(job) {
+  const pageUrl = careerPageUrl(job.id);
+  return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+    pageUrl
+  )}`;
 }
 
 function fakeDelay(ms) {

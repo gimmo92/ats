@@ -213,16 +213,6 @@ export default defineComponent({
                 <div class="fw-semibold small">{{ c.name }}</div>
                 <div class="text-secondary" style="font-size:.72rem">{{ c.role || '—' }}</div>
               </div>
-              <a
-                v-if="c.linkedinUrl"
-                :href="c.linkedinUrl"
-                target="_blank"
-                rel="noopener"
-                class="linkedin-icon"
-                @click.stop
-              >
-                <i class="bi bi-linkedin"></i>
-              </a>
             </div>
             <div class="kanban-card-meta mt-2">
               <i class="bi bi-briefcase me-1"></i>{{ jobById(c.jobId)?.title || '—' }}

@@ -14,7 +14,7 @@ import {
   pipelineStageById,
   stageBadgeStyle,
 } from "../store.js";
-import { postJobToLinkedIn, buildShareUrl } from "../linkedin.js";
+import { buildShareUrl } from "../linkedin.js";
 import { Avatar } from "../components/Avatar.js";
 
 export default defineComponent({
@@ -26,9 +26,12 @@ export default defineComponent({
     const job = computed(() => jobById(route.params.id));
     const editing = ref(false);
     const editModel = ref(null);
-    const posting = ref(false);
-    const postingError = ref("");
-    const postedUrl = ref("");
+
+    function openLinkedInShare() {
+      if (!job.value) return;
+      const url = buildShareUrl(job.value);
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
 
     function startEdit() {
       editModel.value = JSON.parse(JSON.stringify(job.value));
@@ -56,24 +59,6 @@ export default defineComponent({
         router.replace("/jobs");
       }
     }
-
-    async function postToLinkedIn() {
-      postingError.value = "";
-      postedUrl.value = "";
-      try {
-        posting.value = true;
-        const res = await postJobToLinkedIn(job.value);
-        postedUrl.value = res.url;
-      } catch (e) {
-        postingError.value = e.message;
-      } finally {
-        posting.value = false;
-      }
-    }
-
-    const shareUrl = computed(() =>
-      job.value ? buildShareUrl(job.value) : ""
-    );
 
     const candidates = computed(() =>
       candidatesByJob(route.params.id).sort(
@@ -117,11 +102,7 @@ export default defineComponent({
       saveEdit,
       cancelEdit,
       onDelete,
-      postToLinkedIn,
-      posting,
-      postingError,
-      postedUrl,
-      shareUrl,
+      openLinkedInShare,
       candidates,
       stageBreakdown,
       JOB_STATUSES,
@@ -169,13 +150,9 @@ export default defineComponent({
             </li>
           </ul>
         </div>
-        <button v-if="!job.linkedinPosted" class="btn btn-linkedin" :disabled="posting" @click="postToLinkedIn">
-          <span v-if="posting"><span class="spinner-border spinner-border-sm me-1"></span> Pubblicazione...</span>
-          <span v-else><i class="bi bi-linkedin me-1"></i> Pubblica su LinkedIn</span>
+        <button type="button" class="btn btn-linkedin" @click="openLinkedInShare">
+          <i class="bi bi-linkedin me-1"></i> Pubblica su LinkedIn
         </button>
-        <a v-else :href="shareUrl" target="_blank" rel="noopener" class="btn btn-outline-linkedin">
-          <i class="bi bi-share me-1"></i> Condividi
-        </a>
         <button v-if="!editing" class="btn btn-primary" @click="startEdit">
           <i class="bi bi-pencil me-1"></i> Modifica
         </button>
@@ -183,12 +160,6 @@ export default defineComponent({
           <i class="bi bi-trash"></i>
         </button>
       </div>
-    </div>
-
-    <div v-if="postingError" class="alert alert-danger">{{ postingError }}</div>
-    <div v-if="postedUrl" class="alert alert-success d-flex justify-content-between align-items-center">
-      <span><i class="bi bi-check-circle me-1"></i> Job pubblicata su LinkedIn (mock)</span>
-      <a :href="postedUrl" target="_blank" rel="noopener" class="btn btn-sm btn-outline-success">Apri post</a>
     </div>
 
     <div class="row g-3">
@@ -426,20 +397,12 @@ export default defineComponent({
               <i class="bi bi-linkedin linkedin-icon fs-5"></i>
               <span class="fw-semibold">LinkedIn</span>
             </div>
-            <div v-if="job.linkedinPosted" class="small">
-              <i class="bi bi-check-circle-fill text-success me-1"></i>
-              Pubblicata su LinkedIn
-              <div class="text-secondary mt-1">{{ formatDate(job.linkedinPostedAt || job.createdAt) }}</div>
-              <a :href="shareUrl" target="_blank" class="btn btn-sm btn-outline-linkedin mt-2 w-100">
-                <i class="bi bi-share me-1"></i> Condividi sul feed
-              </a>
-            </div>
-            <div v-else>
-              <p class="small text-secondary">Pubblica direttamente su LinkedIn per raggiungere più candidati.</p>
-              <button class="btn btn-linkedin w-100" :disabled="posting" @click="postToLinkedIn">
-                <i class="bi bi-linkedin me-1"></i> Pubblica
-              </button>
-            </div>
+            <p class="small text-secondary mb-3">
+              Apre LinkedIn nel browser per condividere sul feed il link alla posizione (pagina pubblica carriere).
+            </p>
+            <button type="button" class="btn btn-linkedin w-100" @click="openLinkedInShare">
+              <i class="bi bi-linkedin me-1"></i> Pubblica su LinkedIn
+            </button>
           </div>
         </div>
       </div>
