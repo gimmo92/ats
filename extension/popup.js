@@ -16,19 +16,61 @@ function isLinkedInProfileTab(url) {
   return /linkedin\.com\/in\//i.test(url || "");
 }
 
+/**
+ * Scraping nel MAIN world della pagina LinkedIn (stesso contesto della UI).
+ * Il content script isolato a volte non riceve risposte utili da sendMessage.
+ */
 async function scrapeFromTab(tabId) {
-  let res;
   try {
-    res = await chrome.tabs.sendMessage(tabId, { action: "SCRAPE_PROFILE" });
-  } catch {
     await chrome.scripting.executeScript({
       target: { tabId },
-      files: ["content-linkedin.js"],
+      world: "MAIN",
+      files: ["linkedin-profile-scrape.js"],
     });
-    await new Promise((r) => setTimeout(r, 200));
-    res = await chrome.tabs.sendMessage(tabId, { action: "SCRAPE_PROFILE" });
+  } catch (e) {
+    return {
+      ok: false,
+      error: e?.message || String(e) || "Impossibile iniettare lo scraper (permessi / URL).",
+    };
   }
-  return res;
+
+  try {
+    const frames = await chrome.scripting.executeScript({
+      target: { tabId },
+      world: "MAIN",
+      func: () => {
+        const fn = globalThis.__tfScrapeProfile;
+        if (typeof fn !== "function") {
+          return {
+            ok: false,
+            error: "Scraper non caricato: ricarica il tab LinkedIn e riprova.",
+          };
+        }
+        return fn();
+      },
+    });
+    const result = frames?.[0]?.result;
+    if (!result || typeof result !== "object") {
+      return { ok: false, error: "Nessun dato dallo scraper (risposta vuota)." };
+    }
+    return result;
+  } catch (e) {
+    return {
+      ok: false,
+      error: e?.message || String(e) || "Lettura profilo fallita.",
+    };
+  }
+}
+
+function summarizePayload(p) {
+  if (!p) return "";
+  const bits = [
+    p.name ? `nome: ${p.name.slice(0, 40)}` : null,
+    p.headline ? `headline: ${p.headline.slice(0, 50)}…` : "headline: (vuoto)",
+    p.location ? `loc: ${p.location.slice(0, 40)}` : "loc: (vuoto)",
+    Array.isArray(p.skills) ? `skill: ${p.skills.length}` : "skill: 0",
+  ];
+  return bits.filter(Boolean).join(" · ");
 }
 
 document.getElementById("go").addEventListener("click", async () => {
@@ -75,7 +117,10 @@ document.getElementById("go").addEventListener("click", async () => {
       );
     });
 
-    setStatus("Tab ATS aperto. Completa e salva il candidato.", "ok");
+    setStatus(
+      `OK. ${summarizePayload(res.payload)} — tab ATS aperto; se i campi restano vuoti, ricarica la pagina Nuovo candidato.`,
+      "ok"
+    );
   } catch (e) {
     setStatus(e.message || String(e), "err");
   } finally {

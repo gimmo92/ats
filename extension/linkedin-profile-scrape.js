@@ -586,13 +586,6 @@ function scrapeProfile() {
   };
 }
 
-if (!globalThis.__TF_LINKEDIN_IMPORT_INIT__) {
-  globalThis.__TF_LINKEDIN_IMPORT_INIT__ = true;
-  chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-    if (message?.action === "SCRAPE_PROFILE") {
-      sendResponse(scrapeProfile());
-      return true;
-    }
-    return false;
-  });
+if (typeof globalThis !== 'undefined') {
+  globalThis.__tfScrapeProfile = scrapeProfile;
 }
