@@ -106,8 +106,7 @@ export default defineComponent({
     function buildCharts() {
       destroyCharts();
       Chart.defaults.color = isDark() ? "#cbd5e1" : "#475569";
-      Chart.defaults.font.family =
-        "Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif";
+      Chart.defaults.font.family = '"Open Sans", sans-serif';
 
       if (funnelCanvas.value) {
         charts.push(
