@@ -13,8 +13,6 @@
     html,
     body,
     button,
-    input,
-    label,
     h1,
     code {
       font-family: "Open Sans", system-ui, sans-serif;
@@ -46,18 +44,8 @@
     .warn code {
       font-size: 10px;
     }
-    label {
-      display: block;
-      margin-bottom: 4px;
-      font-weight: 600;
-    }
-    input {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 8px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+    p a {
+      color: #2152ff;
     }
     button {
       width: 100%;
@@ -91,14 +79,7 @@
   <p class="warn">
     Dopo un aggiornamento dell’estensione: <strong>ricarica</strong> il tab LinkedIn (F5), poi usa di nuovo il pulsante. La riga verde sotto riassume cosa è stato letto dal profilo.
   </p>
-  <p>Apri il <strong>profilo LinkedIn</strong> (/in/…), poi clicca il pulsante. I dati vengono inviati alla pagina <strong>Nuovo candidato</strong> dell’ATS.</p>
-  <label for="origin">URL ATS (con porta)</label>
-  <input
-    id="origin"
-    type="text"
-    value="http://localhost:5500"
-    placeholder="http://localhost:5500"
-  />
+  <p>Apri il <strong>profilo LinkedIn</strong> (/in/…), poi clicca il pulsante. I dati vengono inviati a <strong>Nuovo candidato</strong> su <a href="https://ats-neon-pi.vercel.app/" target="_blank" rel="noopener noreferrer">ats-neon-pi.vercel.app</a>.</p>
   <button id="go" type="button">Leggi profilo e apri nuovo candidato (Spark)</button>
   <div id="status"></div>
   <script src="popup.js"></script>

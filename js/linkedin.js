@@ -5,6 +5,10 @@ import {
   careersRedirectUrl,
 } from "./store.js";
 
+/** Logo Open Graph per anteprima condivisione LinkedIn (posizioni). */
+export const SPARK_LINKEDIN_SHARE_LOGO_URL =
+  "https://tryspark.co/wp-content/uploads/2023/01/logo-spark-psd-1.png";
+
 /* ============================================================
    Modulo integrazione LinkedIn
    ------------------------------------------------------------
@@ -320,11 +324,7 @@ export function buildShareUrl(job) {
     .slice(0, 420);
   const description = [metaBits, body].filter(Boolean).join(" — ").slice(0, 560);
   params.set("description", description);
-
-  const logo = String(state.settings?.company?.logoUrl || "").trim();
-  if (/^https:\/\//i.test(logo) && logo.length < 2000) {
-    params.set("logo", logo);
-  }
+  params.set("logo", SPARK_LINKEDIN_SHARE_LOGO_URL);
 
   const base = window.location.origin;
   const ogPage = `${base}/api/share-job?${params.toString()}`;

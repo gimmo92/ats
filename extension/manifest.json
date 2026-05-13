@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Spark — Importa LinkedIn",
-  "version": "1.0.10",
-  "description": "Legge il profilo LinkedIn aperto e invia i dati all'ATS Spark (localhost o URL personalizzato).",
+  "version": "1.0.11",
+  "description": "Legge il profilo LinkedIn aperto e invia i dati all'ATS Spark (ats-neon-pi.vercel.app).",
   "icons": {
     "16": "icons/spark-extension.png",
     "32": "icons/spark-extension.png",

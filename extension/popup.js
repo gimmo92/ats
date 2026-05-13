@@ -4,13 +4,8 @@ function setStatus(msg, cls) {
   el.className = cls || "";
 }
 
-function normalizeOrigin(raw) {
-  let o = (raw || "").trim();
-  if (!o) return "http://localhost:5500";
-  o = o.replace(/\/$/, "");
-  if (!/^https?:\/\//i.test(o)) o = `http://${o}`;
-  return o;
-}
+/** Destinazione fissa dell’ATS Spark (non configurabile dall’utente). */
+const SPARK_ATS_BASE = "https://ats-neon-pi.vercel.app";
 
 function isLinkedInProfileTab(url) {
   return /linkedin\.com\/in\//i.test(url || "");
@@ -75,8 +70,7 @@ function summarizePayload(p) {
 
 document.getElementById("go").addEventListener("click", async () => {
   const btn = document.getElementById("go");
-  const origin = normalizeOrigin(document.getElementById("origin").value);
-  const atsUrl = `${origin}/#/candidates/new`;
+  const atsUrl = `${SPARK_ATS_BASE}/#/candidates/new`;
 
   setStatus("");
   btn.disabled = true;

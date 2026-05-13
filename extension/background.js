@@ -115,7 +115,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       () => {
         const url =
           message.atsOrigin ||
-          "http://localhost:5500/#/candidates/new";
+          "https://ats-neon-pi.vercel.app/#/candidates/new";
         chrome.tabs.create({ url, active: true }, (tab) => {
           if (chrome.runtime.lastError) {
             sendResponse({
