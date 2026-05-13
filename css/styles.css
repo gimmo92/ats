@@ -3,21 +3,8 @@
    ============================================================ */
 
 :root {
-  --tf-text: #8392ab;
-  --tf-form-label: var(--tf-text);
+  --tf-form-label: #8392ab;
   --tf-form-border: #8392ab;
-  --bs-body-color: #8392ab;
-  --bs-body-color-rgb: 131, 146, 171;
-  --bs-secondary-color: #8392ab;
-  --bs-secondary-color-rgb: 131, 146, 171;
-  --bs-secondary-rgb: 131, 146, 171;
-  --bs-tertiary-color: #8392ab;
-  --bs-tertiary-color-rgb: 131, 146, 171;
-  --bs-heading-color: #8392ab;
-  --bs-emphasis-color: #8392ab;
-  --bs-link-color: #8392ab;
-  --bs-link-hover-color: #8392ab;
-  --bs-link-color-rgb: 131, 146, 171;
   --tf-app-bg: #f8f9fa;
   --tf-linkedin: #0a66c2;
   --tf-linkedin-hover: #004182;
@@ -28,25 +15,9 @@
   --tf-primary-gradient: linear-gradient(310deg, #2152ff 0%, #21d4fd 100%);
   --bs-font-sans-serif: "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
-  --bs-body-font-family: var(--bs-font-sans-serif);
 }
 
 [data-bs-theme="dark"] {
-  --tf-text: #8392ab;
-  --tf-form-label: var(--tf-text);
-  --bs-body-color: #8392ab;
-  --bs-body-color-rgb: 131, 146, 171;
-  --bs-secondary-color: #8392ab;
-  --bs-secondary-color-rgb: 131, 146, 171;
-  --bs-secondary-rgb: 131, 146, 171;
-  --bs-tertiary-color: #8392ab;
-  --bs-tertiary-color-rgb: 131, 146, 171;
-  --bs-heading-color: #8392ab;
-  --bs-emphasis-color: #8392ab;
-  --bs-link-color: #8392ab;
-  --bs-link-hover-color: #8392ab;
-  --bs-link-color-rgb: 131, 146, 171;
-  --bs-body-font-family: var(--bs-font-sans-serif);
   --tf-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --tf-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   --tf-shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
@@ -57,57 +28,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-html {
-  font-family: var(--bs-font-sans-serif);
-}
-
 body {
-  font-family: var(--bs-body-font-family);
+  font-family: var(--bs-font-sans-serif);
   background-color: var(--tf-app-bg);
-  color: var(--tf-text);
-}
-
-button,
-input,
-select,
-textarea,
-optgroup,
-.btn,
-.nav-tab,
-.dropdown-menu,
-.toast,
-.modal,
-.popover,
-.tooltip,
-.form-control,
-.form-select,
-.badge,
-.list-group-item,
-.nav,
-.navbar {
-  font-family: var(--bs-font-sans-serif);
-}
-
-.font-monospace,
-code,
-kbd,
-pre,
-samp {
-  font-family: var(--bs-font-sans-serif);
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-.card-title,
-.modal-title,
-.dropdown-item,
-.list-group-item {
-  font-family: var(--bs-font-sans-serif);
-  color: var(--tf-text);
 }
 
 /* ====== Form: etichette e bordi input ====== */
@@ -214,21 +137,6 @@ h6,
   box-shadow: none;
 }
 
-.btn-link {
-  color: var(--tf-text);
-}
-.btn-link:hover,
-.btn-link:focus {
-  color: var(--tf-text);
-}
-
-.text-primary,
-.text-dark,
-.text-body,
-.text-muted {
-  color: var(--tf-text) !important;
-}
-
 /* ====== Splash ====== */
 .splash {
   position: fixed;
@@ -289,19 +197,19 @@ h6,
   transition: color 0.15s, border-color 0.15s;
 }
 .nav-tab:hover {
-  color: var(--tf-text);
+  color: #0a6cd2;
   background: transparent;
 }
 .nav-tab.router-link-active {
-  color: var(--tf-text);
-  border-bottom-color: var(--tf-text);
+  color: #0a6cd2;
+  border-bottom-color: #0a6cd2;
   background: transparent;
   box-shadow: none;
 }
 [data-bs-theme="dark"] .nav-tab.router-link-active,
 [data-bs-theme="dark"] .nav-tab:hover {
-  color: var(--tf-text);
-  border-bottom-color: var(--tf-text);
+  color: #0a6cd2;
+  border-bottom-color: #0a6cd2;
 }
 .nav-tab i {
   font-size: 1rem;
@@ -711,18 +619,6 @@ h6,
   --career-blue-darker: #063d78;
   --career-blue-light: #58b0ef;
   --career-blue-soft: #eaf4fc;
-  --bs-body-color: #8392ab;
-  --bs-body-color-rgb: 131, 146, 171;
-  --bs-secondary-color: #8392ab;
-  --bs-secondary-color-rgb: 131, 146, 171;
-  --bs-secondary-rgb: 131, 146, 171;
-  --bs-tertiary-color: #8392ab;
-  --bs-heading-color: #8392ab;
-  --bs-emphasis-color: #8392ab;
-  --bs-link-color: #8392ab;
-  --bs-link-hover-color: #8392ab;
-  --bs-link-color-rgb: 131, 146, 171;
-  color: #8392ab;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -821,7 +717,7 @@ h6,
 
 .career-nav-link:hover,
 .career-nav-link.router-link-active {
-  color: var(--tf-text);
+  color: var(--career-blue);
 }
 
 .career-main {
@@ -860,7 +756,7 @@ h6,
 }
 
 .career-footer-links a {
-  color: var(--tf-text);
+  color: var(--career-blue);
   text-decoration: none;
   font-weight: 500;
 }
@@ -953,7 +849,7 @@ h6,
 }
 
 .career-section .career-eyebrow {
-  color: var(--tf-text);
+  color: var(--career-blue);
 }
 
 .career-section {
@@ -1023,7 +919,7 @@ h6,
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--tf-text);
+  color: var(--career-blue);
 }
 
 .career-job-date {
@@ -1062,7 +958,7 @@ h6,
 }
 
 .career-job-cta {
-  color: var(--tf-text);
+  color: var(--career-blue);
 }
 
 .career-detail-hero {

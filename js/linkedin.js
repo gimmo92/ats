@@ -1,4 +1,9 @@
-import { state, logActivity, careerPageUrl } from "./store.js";
+import {
+  state,
+  logActivity,
+  careerPageUrl,
+  careersRedirectUrl,
+} from "./store.js";
 
 /* ============================================================
    Modulo integrazione LinkedIn
@@ -279,12 +284,52 @@ export async function postJobToLinkedIn(job) {
 
 /**
  * Genera l'URL di condivisione LinkedIn (composer / share) per la posizione.
- * Usa la pagina pubblica carriere (o redirect configurato) come URL condiviso.
+ * Con hash routing (#/carriere/:id) i crawler vedono solo index.html: usiamo
+ * /api/share-job (Vercel) con query string per Open Graph con dati reali.
+ * Se è configurato un redirect carriere esterno, si condivide quell'URL.
  */
 export function buildShareUrl(job) {
-  const pageUrl = careerPageUrl(job.id);
+  if (!job) return "";
+  const externalCareers = careersRedirectUrl();
+  if (externalCareers) {
+    const pageUrl = careerPageUrl(job.id);
+    return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+      pageUrl
+    )}`;
+  }
+  if (typeof window === "undefined") return "";
+
+  const company =
+    (state.settings?.company?.name || "Spark ATS").trim() || "Spark ATS";
+  const params = new URLSearchParams();
+  params.set("jobId", String(job.id || "").trim());
+  params.set("title", String(job.title || "Posizione aperta").trim().slice(0, 200));
+  params.set("company", company.slice(0, 120));
+
+  const metaBits = [
+    job.location,
+    job.workMode,
+    job.employmentType,
+    job.department,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  const body = String(job.description || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 420);
+  const description = [metaBits, body].filter(Boolean).join(" — ").slice(0, 560);
+  params.set("description", description);
+
+  const logo = String(state.settings?.company?.logoUrl || "").trim();
+  if (/^https:\/\//i.test(logo) && logo.length < 2000) {
+    params.set("logo", logo);
+  }
+
+  const base = window.location.origin;
+  const ogPage = `${base}/api/share-job?${params.toString()}`;
   return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
-    pageUrl
+    ogPage
   )}`;
 }
 
