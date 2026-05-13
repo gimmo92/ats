@@ -89,7 +89,7 @@ export default defineComponent({
     <div class="page-header">
       <div>
         <h1 class="page-title">Impostazioni</h1>
-        <p class="page-subtitle">Configura azienda, utente e sito carriere</p>
+        <p class="page-subtitle">Configura azienda e sito carriere</p>
       </div>
     </div>
 
@@ -203,7 +203,7 @@ export default defineComponent({
           </div>
         </div>
 
-        <div class="card mb-3">
+        <div class="card">
           <div class="card-body">
             <h5 class="card-title">Sito carriere</h5>
             <p class="small text-secondary">
@@ -287,26 +287,6 @@ export default defineComponent({
             >
               <i class="bi bi-box-arrow-up-right me-1"></i> Anteprima sito carriere
             </a>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Profilo utente</h5>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label">Nome</label>
-                <input v-model="state.settings.user.name" class="form-control" />
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Email</label>
-                <input v-model="state.settings.user.email" type="email" class="form-control" />
-              </div>
-              <div class="col-12">
-                <label class="form-label">Ruolo</label>
-                <input v-model="state.settings.user.role" class="form-control" />
-              </div>
-            </div>
           </div>
         </div>
       </div>

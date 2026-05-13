@@ -1,4 +1,11 @@
-import { defineComponent, ref, onMounted, onBeforeUnmount, nextTick } from "vue";
+import {
+  defineComponent,
+  ref,
+  computed,
+  onMounted,
+  onBeforeUnmount,
+  nextTick,
+} from "vue";
 import { useRouter } from "vue-router";
 import { state, addCandidate } from "../store.js";
 
@@ -9,6 +16,10 @@ export default defineComponent({
   setup() {
     const router = useRouter();
 
+    const openJobs = computed(() =>
+      (state.jobs || []).filter((j) => j.status === "open")
+    );
+
     const model = ref({
       firstName: "Gianmarco",
       lastName: "Basso",
@@ -18,6 +29,9 @@ export default defineComponent({
       location: "Varese",
       headline: "Trasparenza Salariale resa semplice con l'IA",
       linkedinUrl: "https://www.linkedin.com/in/gianmarcobasso",
+      educationLevel: "",
+      university: "",
+      faculty: "",
       jobId: null,
       source: "Manuale",
       stage: "applied",
@@ -183,6 +197,7 @@ export default defineComponent({
     return {
       model,
       state,
+      openJobs,
       save,
     };
   },
@@ -236,12 +251,48 @@ export default defineComponent({
                 <label class="form-label">Località</label>
                 <input v-model="model.location" class="form-control" />
               </div>
-              <div class="col-md-6">
-                <label class="form-label">Posizione</label>
-                <select v-model="model.jobId" class="form-select">
-                  <option :value="null">—</option>
-                  <option v-for="j in state.jobs" :key="j.id" :value="j.id">{{ j.title }}</option>
+              <div class="col-12">
+                <hr class="my-1" />
+                <div class="text-secondary small mb-2">Istruzione</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Livello di istruzione</label>
+                <select v-model="model.educationLevel" class="form-select">
+                  <option value="">—</option>
+                  <option value="Diploma">Diploma</option>
+                  <option value="Laurea triennale">Laurea triennale</option>
+                  <option value="Laurea magistrale">Laurea magistrale</option>
+                  <option value="Laurea magistrale a ciclo unico">Laurea magistrale a ciclo unico</option>
+                  <option value="Master / II livello">Master / II livello</option>
+                  <option value="Dottorato di ricerca">Dottorato di ricerca</option>
+                  <option value="Altro">Altro</option>
                 </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Università / Scuola</label>
+                <input
+                  v-model="model.university"
+                  class="form-control"
+                  placeholder="es. Politecnico di Milano, Liceo scientifico…"
+                />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Facoltà / Corso di studi</label>
+                <input
+                  v-model="model.faculty"
+                  class="form-control"
+                  placeholder="es. Ingegneria informatica"
+                />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Offerta di lavoro aperta</label>
+                <select v-model="model.jobId" class="form-select">
+                  <option :value="null">Nessuna offerta collegata</option>
+                  <option v-for="j in openJobs" :key="j.id" :value="j.id">{{ j.title }}</option>
+                </select>
+                <div v-if="!openJobs.length" class="form-text text-secondary">
+                  Non ci sono posizioni con stato «aperto». Apri o crea una posizione da Job.
+                </div>
               </div>
               <div class="col-md-6">
                 <label class="form-label">Sorgente</label>
