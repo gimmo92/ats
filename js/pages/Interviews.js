@@ -137,6 +137,70 @@ export default defineComponent({
       );
     }
 
+    function interviewBodyLines(i) {
+      const cand = candidateById(i.candidateId);
+      const job = jobById(i.jobId);
+      const lines = [
+        cand?.name ? `Candidato: ${cand.name}` : "",
+        job?.title ? `Posizione: ${job.title}` : "",
+        i.type ? `Tipo: ${i.type}` : "",
+        i.mode ? `Modalità: ${i.mode}` : "",
+        (i.interviewers || []).length
+          ? `Intervistatori: ${i.interviewers.join(", ")}`
+          : "",
+        i.notes ? `Note:\n${i.notes}` : "",
+      ].filter(Boolean);
+      return lines.join("\n");
+    }
+
+    function googleCalendarUrl(i) {
+      const start = new Date(i.date);
+      const dur = Number(i.durationMin) > 0 ? Number(i.durationMin) : 60;
+      const end = new Date(start.getTime() + dur * 60 * 1000);
+      const pad = (n) => String(n).padStart(2, "0");
+      const g = (d) =>
+        `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}T${pad(
+          d.getUTCHours()
+        )}${pad(d.getUTCMinutes())}${pad(d.getUTCSeconds())}Z`;
+      const dates = `${g(start)}/${g(end)}`;
+      const title = i.title || "Colloquio";
+      const details = interviewBodyLines(i).slice(0, 6000);
+      const location = (i.location || "").slice(0, 1000);
+      const q = new URLSearchParams({
+        action: "TEMPLATE",
+        text: title,
+        dates,
+        details,
+        location,
+      });
+      return `https://calendar.google.com/calendar/render?${q.toString()}`;
+    }
+
+    /** Apre Outlook Web per creare l’evento (calendario visibile anche in Teams). */
+    function teamsCalendarUrl(i) {
+      const start = new Date(i.date);
+      const dur = Number(i.durationMin) > 0 ? Number(i.durationMin) : 60;
+      const end = new Date(start.getTime() + dur * 60 * 1000);
+      const pad = (n) => String(n).padStart(2, "0");
+      const isoUtc = (d) =>
+        `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}T${pad(
+          d.getUTCHours()
+        )}:${pad(d.getUTCMinutes())}:00Z`;
+      const title = i.title || "Colloquio";
+      const body = interviewBodyLines(i).slice(0, 8000);
+      const location = (i.location || "").slice(0, 1000);
+      const q = new URLSearchParams({
+        path: "/calendar/action/compose",
+        rru: "addevent",
+        subject: title,
+        startdt: isoUtc(start),
+        enddt: isoUtc(end),
+        body,
+        location,
+      });
+      return `https://outlook.office.com/calendar/0/deeplink/compose?${q.toString()}`;
+    }
+
     return {
       tab,
       filter,
@@ -154,6 +218,8 @@ export default defineComponent({
       openModal,
       saveModal,
       state,
+      googleCalendarUrl,
+      teamsCalendarUrl,
     };
   },
   template: `
@@ -228,6 +294,24 @@ export default defineComponent({
               <div v-if="i.location" class="small text-secondary"><i class="bi bi-geo-alt me-1"></i>{{ i.location }}</div>
               <div v-if="i.interviewers?.length" class="small text-secondary"><i class="bi bi-people me-1"></i>{{ i.interviewers.join(', ') }}</div>
               <div v-if="i.notes" class="small mt-1" style="white-space: pre-wrap">{{ i.notes }}</div>
+              <div class="d-flex flex-wrap gap-2 mt-2">
+                <a
+                  :href="googleCalendarUrl(i)"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-sm btn-outline-secondary"
+                >
+                  <i class="bi bi-google me-1"></i> Google Calendar
+                </a>
+                <a
+                  :href="teamsCalendarUrl(i)"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-sm btn-outline-secondary"
+                >
+                  <i class="bi bi-microsoft-teams me-1"></i> Teams
+                </a>
+              </div>
             </div>
             <div class="d-flex flex-column gap-1">
               <button v-if="i.status !== 'completed'" class="btn btn-sm btn-outline-success" @click="markCompleted(i)">
