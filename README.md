@@ -1,4 +1,4 @@
-# TalentFlow ATS
+# Spark ATS
 
 ATS (Applicant Tracking System) completo costruito con **Vue.js 3** e **Bootstrap 5**, integrato con **LinkedIn**.
 

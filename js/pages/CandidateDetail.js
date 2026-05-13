@@ -257,6 +257,20 @@ export default defineComponent({
                 <div class="text-secondary small">Applicazione</div>
                 <div>{{ formatDate(candidate.appliedAt) }}</div>
               </div>
+              <template v-if="candidate.educationLevel || candidate.university || candidate.faculty">
+                <div class="col-md-4">
+                  <div class="text-secondary small">Livello di istruzione</div>
+                  <div>{{ candidate.educationLevel || '—' }}</div>
+                </div>
+                <div class="col-md-4">
+                  <div class="text-secondary small">Università</div>
+                  <div>{{ candidate.university || '—' }}</div>
+                </div>
+                <div class="col-md-4">
+                  <div class="text-secondary small">Facoltà / Corso di studi</div>
+                  <div>{{ candidate.faculty || '—' }}</div>
+                </div>
+              </template>
             </div>
 
             <hr />
@@ -329,6 +343,31 @@ export default defineComponent({
               <div class="col-md-6">
                 <label class="form-label">Località</label>
                 <input v-model="editModel.location" class="form-control" />
+              </div>
+              <div class="col-12">
+                <hr class="my-1" />
+                <div class="text-secondary small mb-2">Istruzione</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Livello di istruzione</label>
+                <select v-model="editModel.educationLevel" class="form-select">
+                  <option value="">—</option>
+                  <option value="Diploma">Diploma</option>
+                  <option value="Laurea triennale">Laurea triennale</option>
+                  <option value="Laurea magistrale">Laurea magistrale</option>
+                  <option value="Laurea magistrale a ciclo unico">Laurea magistrale a ciclo unico</option>
+                  <option value="Master / II livello">Master / II livello</option>
+                  <option value="Dottorato di ricerca">Dottorato di ricerca</option>
+                  <option value="Altro">Altro</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Università</label>
+                <input v-model="editModel.university" class="form-control" placeholder="es. Politecnico di Milano" />
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Facoltà / Corso di studi</label>
+                <input v-model="editModel.faculty" class="form-control" placeholder="es. Ingegneria informatica" />
               </div>
               <div class="col-md-6">
                 <label class="form-label">Posizione</label>

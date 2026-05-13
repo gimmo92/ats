@@ -353,6 +353,9 @@ function seed() {
       source: "LinkedIn",
       tags: ["top-talent"],
       appliedAt: daysAgo(10),
+      educationLevel: "Laurea magistrale",
+      university: "Politecnico di Milano",
+      faculty: "Ingegneria informatica",
     }),
     candidate({
       name: "Andrea Conti",
@@ -385,6 +388,9 @@ function seed() {
       source: "LinkedIn",
       tags: [],
       appliedAt: daysAgo(6),
+      educationLevel: "Laurea triennale",
+      university: "Università degli Studi di Napoli Federico II",
+      faculty: "Informatica",
     }),
     candidate({
       name: "Sara Esposito",
@@ -413,6 +419,9 @@ function seed() {
       source: "Referral",
       tags: ["referral"],
       appliedAt: daysAgo(20),
+      educationLevel: "Laurea magistrale",
+      university: "Sapienza Università di Roma",
+      faculty: "Ingegneria informatica",
     }),
     candidate({
       name: "Luca Ferrari",
@@ -441,6 +450,9 @@ function seed() {
       source: "LinkedIn",
       tags: [],
       appliedAt: daysAgo(2),
+      educationLevel: "Laurea magistrale",
+      university: "Politecnico di Torino",
+      faculty: "Informatica",
     }),
     candidate({
       name: "Marta Greco",
@@ -469,6 +481,9 @@ function seed() {
       source: "LinkedIn",
       tags: [],
       appliedAt: daysAgo(8),
+      educationLevel: "Laurea magistrale",
+      university: "Università Bocconi",
+      faculty: "Management",
     }),
     candidate({
       name: "Davide Marini",
@@ -497,6 +512,9 @@ function seed() {
       source: "Sito carriera",
       tags: [],
       appliedAt: daysAgo(3),
+      educationLevel: "Laurea magistrale",
+      university: "Università di Bologna",
+      faculty: "Informatica",
     }),
     candidate({
       name: "Elena Russo",
@@ -525,6 +543,9 @@ function seed() {
       source: "LinkedIn",
       tags: ["hired"],
       appliedAt: daysAgo(45),
+      educationLevel: "Laurea triennale",
+      university: "IED Milano",
+      faculty: "Design",
     }),
     candidate({
       name: "Matteo Bruno",
@@ -554,6 +575,9 @@ function seed() {
       tags: [],
       appliedAt: daysAgo(28),
       rejectedReason: "Esperienza non sufficiente per il livello senior.",
+      educationLevel: "Laurea triennale",
+      university: "Università di Padova",
+      faculty: "Informatica",
     }),
     candidate({
       name: "Francesca De Luca",
@@ -582,6 +606,9 @@ function seed() {
       source: "LinkedIn",
       tags: [],
       appliedAt: daysAgo(1),
+      educationLevel: "Laurea magistrale",
+      university: "Politecnico di Milano",
+      faculty: "Informatica",
     }),
   ];
 
@@ -677,15 +704,15 @@ function seed() {
 
   const settings = {
     company: {
-      name: "TalentFlow",
-      website: "https://talentflow.example.com",
+      name: "Spark ATS",
+      website: "https://spark.example.com",
       industry: "SaaS",
       logoUrl: null,
       bannerUrl: null,
     },
     user: {
       name: "Recruiter Demo",
-      email: "demo@talentflow.example.com",
+      email: "demo@spark.example.com",
       role: "Lead Recruiter",
     },
     linkedin: {
@@ -738,6 +765,9 @@ function candidate(partial) {
     notes: "",
     appliedAt: nowIso(),
     rejectedReason: "",
+    educationLevel: "",
+    university: "",
+    faculty: "",
     ...partial,
   };
 }
@@ -782,6 +812,9 @@ function normalizeState(parsed) {
   );
   parsed.candidates.forEach((c) => {
     if (!validStageIds.has(c.stage)) c.stage = "applied";
+    if (c.educationLevel == null) c.educationLevel = "";
+    if (c.university == null) c.university = "";
+    if (c.faculty == null) c.faculty = "";
   });
   parsed.jobs.forEach((job) => {
     if (job.careersPublished === undefined) {

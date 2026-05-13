@@ -39,7 +39,7 @@ export default defineComponent({
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `talentflow-backup-${new Date()
+      a.download = `spark-ats-backup-${new Date()
         .toISOString()
         .slice(0, 10)}.json`;
       a.click();

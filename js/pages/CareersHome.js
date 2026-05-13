@@ -104,7 +104,7 @@ export default defineComponent({
             <span class="career-hero-stat-label">team attivi</span>
           </div>
           <div class="career-hero-stat">
-            <span class="career-hero-stat-value">{{ company.name || 'TalentFlow' }}</span>
+            <span class="career-hero-stat-value">{{ company.name || 'Spark ATS' }}</span>
             <span class="career-hero-stat-label">azienda</span>
           </div>
         </div>

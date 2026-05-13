@@ -27,9 +27,9 @@ export const CareerShell = defineComponent({
           <span v-if="company.logoUrl" class="career-brand-logo">
             <img :src="company.logoUrl" :alt="company.name || 'Logo aziendale'" />
           </span>
-          <span v-else class="career-brand-mark">{{ (company.name || 'TalentFlow').slice(0, 1) }}</span>
+          <span v-else class="career-brand-mark">{{ (company.name || 'Spark ATS').slice(0, 1) }}</span>
           <span>
-            <span class="career-brand-name">{{ company.name || 'TalentFlow' }}</span>
+            <span class="career-brand-name">{{ company.name || 'Spark ATS' }}</span>
             <span class="career-brand-tag">Carriere</span>
           </span>
         </router-link>
@@ -59,7 +59,7 @@ export const CareerShell = defineComponent({
     <footer class="career-footer">
       <div class="career-footer-inner">
         <div>
-          <div class="career-footer-title">{{ company.name || 'TalentFlow' }}</div>
+          <div class="career-footer-title">{{ company.name || 'Spark ATS' }}</div>
           <p class="career-footer-copy mb-0">
             {{ careers.subheadline }}
           </p>
