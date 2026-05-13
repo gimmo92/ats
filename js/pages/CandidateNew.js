@@ -9,24 +9,25 @@ export default defineComponent({
   name: "CandidateNew",
   setup() {
     const router = useRouter();
-    const linkedinUrl = ref("");
+    const linkedinUrl = ref("https://www.linkedin.com/in/gianmarcobasso");
     const importing = ref(false);
     const importError = ref("");
 
     const model = ref({
-      firstName: "",
-      lastName: "",
+      firstName: "Gianmarco",
+      lastName: "Basso",
       email: "",
       phone: "",
-      role: "",
-      location: "",
-      headline: "",
-      linkedinUrl: "",
+      role: "CEO & Co-founder",
+      location: "Varese",
+      headline: "Trasparenza Salariale resa semplice con l'IA",
+      linkedinUrl: "https://www.linkedin.com/in/gianmarcobasso",
       jobId: null,
       source: "Manuale",
       stage: "applied",
       rating: 0,
-      _skillsText: "",
+      _skillsText:
+        "Sistema di gestione delle risorse umane, People analytics, AI integration",
       notes: "",
       experience: [],
       education: [],
